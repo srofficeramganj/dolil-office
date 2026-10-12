@@ -12,10 +12,16 @@ $archive = $archive ? $archive : home_url( '/deed-writers/' );
 $phone   = sro_opt( 'office_phone' );
 $hours   = sro_opt( 'office_hours' );
 
-// Notice ticker lines (Customizer → অফিসের তথ্য → ঘোষণা), one per line.
-$notices = array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) sro_opt( 'office_notices' ) ) ) );
+// Ticker: Customizer lines if set, otherwise the newest notices.
+$notices = array();
+foreach ( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) sro_opt( 'office_notices' ) ) ) ) as $line ) {
+	$notices[] = array( 'text' => $line, 'url' => '' );
+}
 if ( ! $notices ) {
-	$notices = array( 'দলিল লেখকদের তথ্য এখন অনলাইনে: নাম, সনদ নম্বর বা মোবাইল নম্বর দিয়ে খুঁজুন।' );
+	$notices = sro_latest_notices( 5 );
+}
+if ( ! $notices ) {
+	$notices = array( array( 'text' => 'দলিল লেখকদের তথ্য এখন অনলাইনে: নাম, সনদ নম্বর বা মোবাইল নম্বর দিয়ে খুঁজুন।', 'url' => '' ) );
 }
 
 // Service cards: title, text, link, accent colour, icon path (24x24 line icons).
@@ -64,7 +70,13 @@ $faqs = array(
 		<div class="ticker-track">
 			<div class="ticker-move">
 				<?php foreach ( $notices as $n ) : ?>
-					<span class="ticker-item"><?php echo esc_html( $n ); ?></span>
+					<span class="ticker-item">
+						<?php if ( $n['url'] ) : ?>
+							<a href="<?php echo esc_url( $n['url'] ); ?>"><?php echo esc_html( $n['text'] ); ?></a>
+						<?php else : ?>
+							<?php echo esc_html( $n['text'] ); ?>
+						<?php endif; ?>
+					</span>
 				<?php endforeach; ?>
 			</div>
 		</div>

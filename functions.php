@@ -7,12 +7,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.7.0' );
+define( 'SRO_VERSION', '1.8.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
 require_once get_template_directory() . '/inc/updater.php';
 require_once get_template_directory() . '/inc/importer.php';
+require_once get_template_directory() . '/inc/notices.php';
 
 /**
  * Theme setup.
@@ -215,10 +216,11 @@ add_action( 'after_switch_theme', 'sro_activate' );
  * Flush rewrite rules once, after the custom post type is registered.
  */
 function sro_maybe_flush() {
-	if ( get_option( 'sro_needs_flush' ) ) {
+	if ( get_option( 'sro_flushed_ver' ) !== SRO_VERSION ) {
 		flush_rewrite_rules();
-		delete_option( 'sro_needs_flush' );
+		update_option( 'sro_flushed_ver', SRO_VERSION, false );
 	}
+	delete_option( 'sro_needs_flush' );
 }
 add_action( 'init', 'sro_maybe_flush', 99 );
 
