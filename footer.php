@@ -74,8 +74,10 @@ $icon = function ( $name ) use ( $icons ) {
 						<span class="ci"><?php echo $icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 						<span>
 							<small>অফিস মোবাইল</small>
-							<?php if ( $phone ) : ?>
+							<?php if ( $phone && sro_phone_ok( $phone ) ) : ?>
 								<a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a>
+							<?php elseif ( $phone ) : ?>
+								<strong><?php echo esc_html( $phone ); ?></strong>
 							<?php else : ?>
 								<em>শীঘ্রই যোগ করা হবে</em>
 							<?php endif; ?>

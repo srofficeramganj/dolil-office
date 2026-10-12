@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.14.0' );
+define( 'SRO_VERSION', '1.14.1' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -120,7 +120,25 @@ add_action( 'customize_register', 'sro_customize_register' );
  */
 function sro_opt( $key, $default = '' ) {
 	$value = get_theme_mod( $key, '' );
-	return '' !== $value ? $value : $default;
+	if ( '' !== $value ) {
+		return $value;
+	}
+	if ( '' !== $default ) {
+		return $default;
+	}
+	// Shown until the office sets its own values in Customizer.
+	$defaults = array(
+		'office_email' => 'sr.office.ramganj@gmail.com',
+		'office_phone' => '01950087xxx', // Demo number: replace in Customizer.
+	);
+	return isset( $defaults[ $key ] ) ? $defaults[ $key ] : '';
+}
+
+/**
+ * Is this a dialable phone number (a demo like 01950087xxx is not)?
+ */
+function sro_phone_ok( $number ) {
+	return (bool) preg_match( '/^\+?[0-9]{10,15}$/', sro_tel( $number ) );
 }
 
 /**

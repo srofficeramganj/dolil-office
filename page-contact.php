@@ -31,11 +31,11 @@ $error = isset( $_GET['error'] ) ? sanitize_key( wp_unslash( $_GET['error'] ) ) 
 					<div><dt>দেশ</dt><dd><?php echo esc_html( $info['country'] ); ?></dd></div>
 					<?php if ( $address ) : ?><div><dt>বিস্তারিত ঠিকানা</dt><dd><?php echo esc_html( $address ); ?></dd></div><?php endif; ?>
 					<div><dt>Office Address (English)</dt><dd lang="en"><?php echo esc_html( $info['address_en'] ); ?></dd></div>
-					<?php if ( $phone ) : ?><div><dt>ফোন</dt><dd><a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a></dd></div><?php endif; ?>
+					<?php if ( $phone ) : ?><div><dt>ফোন</dt><dd><?php if ( sro_phone_ok( $phone ) ) : ?><a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a><?php else : ?><?php echo esc_html( $phone ); ?><?php endif; ?></dd></div><?php endif; ?>
 					<?php if ( $email ) : ?><div><dt>ইমেইল</dt><dd><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></dd></div><?php endif; ?>
 					<?php if ( $hours ) : ?><div><dt>অফিস সময়</dt><dd><?php echo esc_html( $hours ); ?></dd></div><?php endif; ?>
 				</dl>
-				<?php if ( $phone ) : ?>
+				<?php if ( $phone && sro_phone_ok( $phone ) ) : ?>
 					<p style="margin-top:16px;"><a class="btn btn-block" href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>">এখনই কল করুন</a></p>
 				<?php elseif ( current_user_can( 'manage_options' ) ) : ?>
 					<p class="footer-note">(শুধু অ্যাডমিন দেখছেন) ফোন, ইমেইল ও অফিস সময় যোগ করতে Appearance → Customize → "অফিসের তথ্য" এ যান।</p>
