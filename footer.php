@@ -119,16 +119,6 @@ $icon = function ( $name ) use ( $icons ) {
 			</div>
 		</div>
 
-		<div class="footer-map">
-			<iframe
-				title="<?php echo esc_attr( $info['name'] ); ?> এর অবস্থান (Google Maps)"
-				src="<?php echo esc_url( $map['embed'] ); ?>"
-				loading="lazy"
-				referrerpolicy="no-referrer-when-downgrade"
-				allowfullscreen></iframe>
-			<a class="btn footer-map-btn" href="<?php echo esc_url( $map['link'] ); ?>" target="_blank" rel="noopener noreferrer">দিক নির্দেশনা পান (Google Maps)</a>
-		</div>
-
 		<p class="copyright">&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( $info['name'] ); ?>। সর্বস্বত্ব সংরক্ষিত।</p>
 	</div>
 </footer>
