@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.12.0' );
+define( 'SRO_VERSION', '1.13.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -17,6 +17,7 @@ require_once get_template_directory() . '/inc/notices.php';
 require_once get_template_directory() . '/inc/services.php';
 require_once get_template_directory() . '/inc/mouza.php';
 require_once get_template_directory() . '/inc/mouza-admin.php';
+require_once get_template_directory() . '/inc/committee.php';
 
 /**
  * Theme setup.

@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.12.0
+Version: 1.13.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -448,3 +448,34 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .hero-btn { background: #ffd54a; color: #083f28; border-color: #ffd54a; min-height: 56px; padding-inline: 28px; font-size: 1.05rem; }
 .hero-btn:hover { background: #ffe07a; color: #083f28; border-color: #ffe07a; }
 @media (max-width: 519px) { .hero-title mark { white-space: normal; } }
+
+/* ---------- About page: committee ---------- */
+.about-head { text-align: center; }
+.about-head p { color: var(--c-muted); margin: 0; }
+.about-intro { margin-bottom: 32px; }
+.committee { margin-top: 12px; }
+.member-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+.member-grid > .member { flex: 0 1 100%; }
+@media (min-width: 520px) { .member-grid > .member { flex-basis: calc((100% - 18px) / 2); } }
+@media (min-width: 900px) { .member-grid > .member { flex-basis: calc((100% - 36px) / 3); } }
+@media (min-width: 1100px) { .member-grid > .member { flex-basis: calc((100% - 54px) / 4); } }
+.member {
+	display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+	background: #fff; border: 1px solid var(--c-border); border-radius: 16px; box-shadow: var(--shadow);
+	padding: 26px 16px 20px; position: relative; overflow: hidden; min-width: 0;
+}
+.member::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 76px; background: linear-gradient(135deg, var(--c-primary-dark), var(--c-primary)); }
+.member-photo {
+	position: relative; width: 132px; height: 132px; border-radius: 50%; overflow: hidden; background: #e8f1ec;
+	border: 5px solid #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .15); display: flex; align-items: center; justify-content: center;
+}
+.member-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.member-photo svg { width: 52%; height: auto; color: #8db3a0; }
+.member h3 { margin: 8px 0 0; font-size: 1.15rem; color: var(--c-primary-dark); overflow-wrap: anywhere; }
+.member-role {
+	margin: 0; display: inline-block; padding: 3px 14px; border-radius: 999px; font-weight: 700; font-size: .92rem;
+	background: #e8f1ec; color: var(--c-primary-dark);
+}
+.member.is-lead .member-role { background: #ffd54a; color: #083f28; }
+.member-call { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; color: var(--c-primary); font-weight: 600; text-decoration: none; }
+.member-call:hover { text-decoration: underline; }
