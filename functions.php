@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.11.1' );
+define( 'SRO_VERSION', '1.12.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';

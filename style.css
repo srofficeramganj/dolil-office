@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.11.1
+Version: 1.12.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -433,3 +433,18 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .result-flag { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; font-weight: 700; }
 .result-flag.ok { background: #e8f5ec; color: #0b4a2c; border: 1px solid #86c79a; }
 .result-flag.no { background: #fdecec; color: #7a1414; border: 1px solid #e2a0a0; }
+
+/* ---------- Home hero: centred search headline ---------- */
+.hero { padding-block: 44px; }
+.hero-center { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.hero-title { font-size: clamp(1.6rem, 6vw, 2.6rem); line-height: 1.5; margin: 0 0 10px; color: #fff; }
+.hero-title mark {
+	background: #ffd54a; color: #083f28; padding: 2px 14px; border-radius: 10px;
+	-webkit-box-decoration-break: clone; box-decoration-break: clone; white-space: nowrap;
+}
+.hero-sub { margin: 0 0 22px; font-size: 1.1rem; color: #e6f2ec; max-width: 60ch; }
+.hero-center .hero-search { width: 100%; max-width: 720px; margin: 0 auto; }
+.hero-center .hero-search .field input { min-height: 56px; font-size: 1.05rem; border-radius: 12px; }
+.hero-btn { background: #ffd54a; color: #083f28; border-color: #ffd54a; min-height: 56px; padding-inline: 28px; font-size: 1.05rem; }
+.hero-btn:hover { background: #ffe07a; color: #083f28; border-color: #ffe07a; }
+@media (max-width: 519px) { .hero-title mark { white-space: normal; } }

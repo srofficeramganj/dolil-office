@@ -46,21 +46,16 @@ $faqs = array(
 ?>
 
 <section class="hero">
-	<div class="container hero-grid">
-	<div class="hero-text">
-		<h1><?php bloginfo( 'name' ); ?></h1>
-		<p>এলাকার দলিল লেখকদের নাম, সনদ নম্বর ও মোবাইল নম্বর এক জায়গায়। নাম, সনদ নম্বর বা মোবাইল নম্বর দিয়ে খুঁজুন।</p>
+	<div class="container hero-center">
+		<h1 class="hero-title">সনদপ্রাপ্ত <mark>দলিল লেখকগণের</mark> তথ্য খুঁজুন</h1>
+		<p class="hero-sub">নাম, সনদ নম্বর বা মোবাইল নম্বর দিয়ে খুঁজুন।</p>
 		<form class="hero-search" role="search" method="get" action="<?php echo esc_url( $archive ); ?>">
 			<div class="field">
 				<label class="screen-reader-text" for="hero-q">দলিল লেখক খুঁজুন</label>
 				<input type="search" id="hero-q" name="q" placeholder="নাম, সনদ বা মোবাইল নম্বর লিখুন" autocomplete="off" enterkeyhint="search">
 			</div>
-			<button class="btn" type="submit" style="background:#fff;color:#083f28;border-color:#fff;">খুঁজুন</button>
+			<button class="btn hero-btn" type="submit">খুঁজুন</button>
 		</form>
-	</div>
-	<div class="hero-logo">
-		<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.png' ); ?>" width="260" height="196" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> লোগো">
-	</div>
 	</div>
 </section>
 
