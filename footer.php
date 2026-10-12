@@ -49,7 +49,7 @@ foreach ( $networks as $key => $def ) {
 					<li><a href="<?php echo esc_url( $archive ); ?>">দলিল লেখক তালিকা</a></li>
 					<li><a href="<?php echo esc_url( home_url( '/services/' ) ); ?>">সেবা সমূহ</a></li>
 					<li><a href="<?php echo esc_url( home_url( '/notice/' ) ); ?>">নোটিশ ও তথ্য</a></li>
-					<li><a href="<?php echo esc_url( home_url( '/about/' ) ); ?>">আমাদের সম্পর্কে</a></li>
+					<li><a href="<?php echo esc_url( home_url( '/committee/' ) ); ?>">কার্যকরী কমিটি</a></li>
 					<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">যোগাযোগ</a></li>
 					<li><a href="https://bangladesh.gov.bd/" target="_blank" rel="noopener noreferrer">বাংলাদেশ জাতীয় তথ্য বাতায়ন</a></li>
 					<li><a href="https://minland.gov.bd/" target="_blank" rel="noopener noreferrer">ভূমি মন্ত্রণালয়</a></li>

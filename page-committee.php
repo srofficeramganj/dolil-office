@@ -1,6 +1,6 @@
 <?php
 /**
- * About page (slug: about): office introduction + executive committee profiles.
+ * Committee page (slug: committee): executive committee profiles.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

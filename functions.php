@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.13.1' );
+define( 'SRO_VERSION', '1.13.2' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -143,7 +143,7 @@ function sro_tel( $number ) {
  */
 function sro_default_pages() {
 	return array(
-		'about'    => 'আমাদের সম্পর্কে',
+		'committee' => 'কার্যকরী কমিটি',
 		'services' => 'সেবা সমূহ',
 		'notice'   => 'নোটিশ ও তথ্য',
 		'contact'  => 'যোগাযোগ',
@@ -157,7 +157,7 @@ function sro_fallback_menu() {
 	$pages = sro_default_pages();
 	$items = array(
 		home_url( '/' )                => 'হোম',
-		home_url( '/about/' )          => $pages['about'],
+		home_url( '/committee/' )      => $pages['committee'],
 		home_url( '/deed-writers/' )   => 'দলিল লেখক',
 		home_url( '/services/' )       => $pages['services'],
 		home_url( '/notice/' )         => $pages['notice'],
@@ -202,7 +202,7 @@ function sro_activate() {
 				'দলিল লেখক' => home_url( '/deed-writers/' ),
 			);
 			wp_update_nav_menu_item( $menu_id, 0, array( 'menu-item-title' => 'হোম', 'menu-item-url' => $custom['হোম'], 'menu-item-status' => 'publish', 'menu-item-type' => 'custom' ) );
-			foreach ( array( 'about' ) as $slug ) {
+			foreach ( array( 'committee' ) as $slug ) {
 				wp_update_nav_menu_item( $menu_id, 0, array( 'menu-item-object-id' => $ids[ $slug ], 'menu-item-object' => 'page', 'menu-item-type' => 'post_type', 'menu-item-status' => 'publish' ) );
 			}
 			wp_update_nav_menu_item( $menu_id, 0, array( 'menu-item-title' => 'দলিল লেখক', 'menu-item-url' => $custom['দলিল লেখক'], 'menu-item-status' => 'publish', 'menu-item-type' => 'custom' ) );

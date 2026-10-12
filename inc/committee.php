@@ -364,3 +364,78 @@ function sro_committee_card( $m, $tier ) {
 	</article>
 	<?php
 }
+
+/**
+ * One-time setup: make sure the "কার্যকরী কমিটি" page exists and the main menu
+ * has a clear link to it. If the old "আমাদের সম্পর্কে" menu item actually points
+ * to the home page (it is set as the Homepage), it is renamed to "হোম".
+ */
+function sro_committee_setup() {
+	if ( '1' === get_option( 'sro_committee_setup' ) ) {
+		return;
+	}
+	$page = get_page_by_path( 'committee' );
+	if ( $page ) {
+		$page_id = (int) $page->ID;
+	} else {
+		$page_id = (int) wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'কার্যকরী কমিটি',
+				'post_name'    => 'committee',
+				'post_content' => '',
+			)
+		);
+	}
+	if ( ! $page_id ) {
+		return;
+	}
+
+	$locations = get_nav_menu_locations();
+	if ( ! empty( $locations['primary'] ) ) {
+		$menu_id = (int) $locations['primary'];
+		$items   = wp_get_nav_menu_items( $menu_id );
+		$has     = false;
+		$front   = (int) get_option( 'page_on_front' );
+		$home_at = 0;
+		foreach ( (array) $items as $item ) {
+			if ( 'page' === $item->object && (int) $item->object_id === $page_id ) {
+				$has = true;
+			}
+			if ( 'page' === $item->object && $front && (int) $item->object_id === $front && 'হোম' !== $item->title ) {
+				$home_at = $item;
+			}
+		}
+		if ( $home_at ) {
+			wp_update_nav_menu_item(
+				$menu_id,
+				$home_at->ID,
+				array(
+					'menu-item-title'     => 'হোম',
+					'menu-item-object'    => 'page',
+					'menu-item-object-id' => $home_at->object_id,
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+					'menu-item-position'  => $home_at->menu_order,
+				)
+			);
+		}
+		if ( ! $has ) {
+			wp_update_nav_menu_item(
+				$menu_id,
+				0,
+				array(
+					'menu-item-title'     => 'কার্যকরী কমিটি',
+					'menu-item-object'    => 'page',
+					'menu-item-object-id' => $page_id,
+					'menu-item-type'      => 'post_type',
+					'menu-item-status'    => 'publish',
+					'menu-item-position'  => 2,
+				)
+			);
+		}
+	}
+	update_option( 'sro_committee_setup', '1', false );
+}
+add_action( 'init', 'sro_committee_setup', 99 );
