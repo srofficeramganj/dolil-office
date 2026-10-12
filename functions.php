@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.1.0' );
+define( 'SRO_VERSION', '1.2.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -211,3 +211,23 @@ function sro_maybe_flush() {
 	}
 }
 add_action( 'init', 'sro_maybe_flush', 99 );
+
+/**
+ * Favicon, app icon and social image from the theme (used unless a Site Icon is set in Customizer).
+ */
+function sro_head_icons() {
+	$base = get_template_directory_uri() . '/assets/images/';
+	if ( ! has_site_icon() ) {
+		printf( "<link rel=\"icon\" href=\"%s\" sizes=\"any\">
+", esc_url( $base . 'favicon.ico' ) );
+		printf( "<link rel=\"icon\" type=\"image/png\" sizes=\"192x192\" href=\"%s\">
+", esc_url( $base . 'icon-192.png' ) );
+		printf( "<link rel=\"apple-touch-icon\" href=\"%s\">
+", esc_url( $base . 'apple-touch-icon.png' ) );
+	}
+	printf( "<meta name=\"theme-color\" content=\"#0b5d3b\">
+" );
+	printf( "<meta property=\"og:image\" content=\"%s\">
+", esc_url( $base . 'logo.png' ) );
+}
+add_action( 'wp_head', 'sro_head_icons', 5 );

@@ -21,6 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 			<?php if ( has_custom_logo() ) : ?>
 				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'full', false, array( 'alt' => get_bloginfo( 'name' ) ) ); ?>
+			<?php else : ?>
+				<img class="brand-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/icon-192.png' ); ?>" width="44" height="44" alt="">
 			<?php endif; ?>
 			<span class="brand-text">
 				<?php bloginfo( 'name' ); ?>

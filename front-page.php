@@ -11,7 +11,8 @@ $archive = $archive ? $archive : home_url( '/deed-writers/' );
 ?>
 
 <section class="hero">
-	<div class="container">
+	<div class="container hero-grid">
+	<div class="hero-text">
 		<h1><?php bloginfo( 'name' ); ?></h1>
 		<p>এলাকার দলিল লেখকদের নাম, সনদ নম্বর ও মোবাইল নম্বর এক জায়গায়। নাম, সনদ নম্বর বা মোবাইল নম্বর দিয়ে খুঁজুন।</p>
 		<form class="hero-search" role="search" method="get" action="<?php echo esc_url( $archive ); ?>">
@@ -21,6 +22,10 @@ $archive = $archive ? $archive : home_url( '/deed-writers/' );
 			</div>
 			<button class="btn" type="submit" style="background:#fff;color:#083f28;border-color:#fff;">খুঁজুন</button>
 		</form>
+	</div>
+	<div class="hero-logo">
+		<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.png' ); ?>" width="260" height="196" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> লোগো">
+	</div>
 	</div>
 </section>
 
