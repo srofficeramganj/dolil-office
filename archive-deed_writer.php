@@ -11,7 +11,7 @@ $areas = get_terms( array( 'taxonomy' => 'writer_area', 'hide_empty' => true ) )
 $total = (int) $wp_query->found_posts;
 ?>
 <div class="section">
-	<div class="container">
+	<div class="container container-wide">
 		<header class="page-head">
 			<h1>দলিল লেখক তালিকা</h1>
 			<p>নাম, সনদ নম্বর, মোবাইল নম্বর বা ঠিকানা লিখে খুঁজুন।</p>
