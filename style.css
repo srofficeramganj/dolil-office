@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.4.0
+Version: 1.4.1
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -223,7 +223,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .dw-social .soc-whatsapp { background: #128c7e; }
 .dw-social .soc-facebook { background: #1877f2; }
 .dw-social .soc-youtube { background: #cc0000; }
-.dw-social .soc:hover { filter: brightness(.9); }
+.dw-social a.soc:hover { filter: brightness(.9); }
+.dw-social .soc-off { background: #dfe5e1; color: #9aa7a0; }
 .dw-empty { text-align: center; padding: 32px 16px; background: var(--c-surface); border: 1px dashed var(--c-border); border-radius: var(--radius); }
 
 /* ---------- Content ---------- */

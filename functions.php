@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.4.0' );
+define( 'SRO_VERSION', '1.4.1' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -239,7 +239,7 @@ function sro_head_icons() {
 add_action( 'wp_head', 'sro_head_icons', 5 );
 
 /**
- * Social links of a deed writer, normalised to full URLs.
+ * Social networks of a deed writer. 'url' is empty when no link is set.
  *
  * @return array[] Each item has key, label, url and path.
  */
@@ -261,15 +261,12 @@ function sro_social_links( $post_id ) {
 		if ( 'facebook' === $key && '' === $raw ) {
 			$raw = trim( (string) get_post_meta( $post_id, '_sro_social', true ) );
 		}
-		$url = sro_social_url( $key, $raw );
-		if ( $url ) {
-			$out[] = array(
-				'key'   => $key,
-				'label' => $labels[ $key ],
-				'url'   => $url,
-				'path'  => $path,
-			);
-		}
+		$out[] = array(
+			'key'   => $key,
+			'label' => $labels[ $key ],
+			'url'   => sro_social_url( $key, $raw ),
+			'path'  => $path,
+		);
 	}
 	return $out;
 }
@@ -302,19 +299,23 @@ function sro_social_url( $type, $value ) {
  * Print round social icons (only those filled in).
  */
 function sro_render_social( $post_id ) {
-	$links = sro_social_links( $post_id );
-	if ( ! $links ) {
-		return;
-	}
 	echo '<ul class="dw-social" aria-label="সোশ্যাল মিডিয়া">';
-	foreach ( $links as $l ) {
-		printf(
-			'<li><a class="soc soc-%1$s" href="%2$s" target="_blank" rel="noopener noreferrer" aria-label="%3$s"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="%4$s"/></svg></a></li>',
-			esc_attr( $l['key'] ),
-			esc_url( $l['url'] ),
-			esc_attr( $l['label'] ),
-			esc_attr( $l['path'] )
-		);
+	foreach ( sro_social_links( $post_id ) as $l ) {
+		$icon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' . esc_attr( $l['path'] ) . '"/></svg>';
+		if ( $l['url'] ) {
+			printf(
+				'<li><a class="soc soc-%1$s" href="%2$s" target="_blank" rel="noopener noreferrer" aria-label="%3$s">%4$s</a></li>',
+				esc_attr( $l['key'] ),
+				esc_url( $l['url'] ),
+				esc_attr( $l['label'] ),
+				$icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+		} else {
+			printf(
+				'<li><span class="soc soc-off" aria-hidden="true">%s</span></li>',
+				$icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
+		}
 	}
 	echo '</ul>';
 }
