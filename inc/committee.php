@@ -322,3 +322,45 @@ function sro_committee_members() {
 		)
 	);
 }
+
+/**
+ * Panel row for a position: 1 = president, 2 = vice president / general secretary,
+ * 3 = other office bearers, 4 = ordinary members.
+ */
+function sro_committee_tier( $position ) {
+	$p = trim( preg_replace( '/\s+/u', ' ', (string) $position ) );
+	if ( 'সভাপতি' === $p ) {
+		return 1;
+	}
+	if ( in_array( $p, array( 'সহ-সভাপতি', 'সহ সভাপতি', 'সহসভাপতি', 'সাধারণ সম্পাদক', 'সাধারন সম্পাদক' ), true ) ) {
+		return 2;
+	}
+	if ( false !== mb_strpos( $p, 'সদস্য' ) ) {
+		return 4;
+	}
+	return 3;
+}
+
+/**
+ * Print one member card.
+ */
+function sro_committee_card( $m, $tier ) {
+	$pos    = get_post_meta( $m->ID, '_sro_position', true );
+	$mobile = get_post_meta( $m->ID, '_sro_mobile', true );
+	?>
+	<article class="member tier-<?php echo (int) $tier; ?>">
+		<div class="member-photo">
+			<?php if ( has_post_thumbnail( $m->ID ) ) : ?>
+				<?php echo get_the_post_thumbnail( $m->ID, 'dw_card', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => esc_attr( $m->post_title ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<?php else : ?>
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z"/></svg>
+			<?php endif; ?>
+		</div>
+		<h3><?php echo esc_html( $m->post_title ); ?></h3>
+		<?php if ( $pos ) : ?><p class="member-role"><?php echo esc_html( $pos ); ?></p><?php endif; ?>
+		<?php if ( $mobile ) : ?>
+			<a class="member-call" href="tel:<?php echo esc_attr( sro_tel( $mobile ) ); ?>"><?php echo esc_html( $mobile ); ?></a>
+		<?php endif; ?>
+	</article>
+	<?php
+}

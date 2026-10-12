@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.13.0' );
+define( 'SRO_VERSION', '1.13.1' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -91,6 +91,8 @@ function sro_customize_register( $wp_customize ) {
 		'office_facebook' => 'ফেসবুক পেজের লিংক',
 		'office_youtube'  => 'ইউটিউব চ্যানেলের লিংক',
 		'office_notices'  => 'ঘোষণা (হোম পেজে চলমান লেখা, প্রতি লাইনে একটি)',
+		'committee_title' => 'সমিতির নাম (আমাদের সম্পর্কে পেজে)',
+		'committee_sub'   => 'কমিটির উপশিরোনাম (যেমন: ত্রি-বার্ষিক কার্যকরী পরিষদ ২০২৬ খ্রি.)',
 	);
 	foreach ( $fields as $key => $label ) {
 		$wp_customize->add_setting(

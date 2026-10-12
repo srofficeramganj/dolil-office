@@ -28,31 +28,28 @@ $info    = sro_office_info();
 		?>
 
 		<section class="committee" aria-labelledby="committee-h">
-			<h2 class="section-title" id="committee-h">বর্তমান কার্যকরী কমিটি</h2>
+			<h2 class="section-title" id="committee-h"><?php echo esc_html( sro_opt( 'committee_title', 'রামগঞ্জ দলিল লেখক সমিতি' ) ); ?></h2>
+			<p class="committee-sub"><?php echo esc_html( sro_opt( 'committee_sub', 'ত্রি-বার্ষিক কার্যকরী পরিষদ ২০২৬ খ্রি.' ) ); ?></p>
 
-			<?php if ( $members ) : ?>
-				<div class="member-grid">
-					<?php
-					foreach ( $members as $i => $m ) :
-						$pos    = get_post_meta( $m->ID, '_sro_position', true );
-						$mobile = get_post_meta( $m->ID, '_sro_mobile', true );
+			<?php
+			if ( $members ) :
+				$tiers = array( 1 => array(), 2 => array(), 3 => array(), 4 => array() );
+				foreach ( $members as $m ) {
+					$tiers[ sro_committee_tier( get_post_meta( $m->ID, '_sro_position', true ) ) ][] = $m;
+				}
+				foreach ( $tiers as $t => $list ) :
+					if ( ! $list ) {
+						continue;
+					}
+					?>
+					<div class="panel-tier tier-row-<?php echo (int) $t; ?>">
+						<?php
+						foreach ( $list as $m ) {
+							sro_committee_card( $m, $t );
+						}
 						?>
-						<article class="member<?php echo 0 === $i ? ' is-lead' : ''; ?>">
-							<div class="member-photo">
-								<?php if ( has_post_thumbnail( $m->ID ) ) : ?>
-									<?php echo get_the_post_thumbnail( $m->ID, 'dw_card', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => esc_attr( $m->post_title ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-								<?php else : ?>
-									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5Z"/></svg>
-								<?php endif; ?>
-							</div>
-							<h3><?php echo esc_html( $m->post_title ); ?></h3>
-							<?php if ( $pos ) : ?><p class="member-role"><?php echo esc_html( $pos ); ?></p><?php endif; ?>
-							<?php if ( $mobile ) : ?>
-								<a class="member-call" href="tel:<?php echo esc_attr( sro_tel( $mobile ) ); ?>"><?php echo esc_html( $mobile ); ?></a>
-							<?php endif; ?>
-						</article>
-					<?php endforeach; ?>
-				</div>
+					</div>
+				<?php endforeach; ?>
 			<?php else : ?>
 				<div class="dw-empty">
 					<p><strong>কমিটির সদস্যদের তথ্য শীঘ্রই যোগ করা হবে।</strong></p>

@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.13.0
+Version: 1.13.1
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -479,3 +479,27 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .member.is-lead .member-role { background: #ffd54a; color: #083f28; }
 .member-call { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; color: var(--c-primary); font-weight: 600; text-decoration: none; }
 .member-call:hover { text-decoration: underline; }
+
+/* Team panel: president on top, then tiers */
+.committee-sub { text-align: center; margin: -10px 0 28px; color: var(--c-muted); font-weight: 600; }
+.panel-tier { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 22px; position: relative; }
+.panel-tier > .member { flex: 0 1 100%; max-width: 340px; }
+@media (min-width: 520px) { .panel-tier > .member { flex-basis: 250px; } }
+.panel-tier.tier-row-1 > .member { max-width: 360px; flex-basis: 340px; padding-top: 32px; border-top: 0; box-shadow: 0 6px 22px rgba(11, 93, 59, .22); }
+.panel-tier.tier-row-1 .member::before { height: 96px; background: linear-gradient(135deg, #083f28, #0b5d3b 60%, #1b8a58); }
+.panel-tier.tier-row-1 .member-photo { width: 168px; height: 168px; border-color: #ffd54a; }
+.panel-tier.tier-row-1 .member h3 { font-size: 1.3rem; }
+.panel-tier.tier-row-1 .member-role { background: #ffd54a; color: #083f28; font-size: 1rem; padding: 4px 18px; }
+.panel-tier.tier-row-2 > .member { flex-basis: 290px; max-width: 320px; }
+.panel-tier.tier-row-2 .member-photo { width: 144px; height: 144px; }
+.panel-tier.tier-row-2 .member-role { background: #e6f2ec; color: #083f28; border: 1px solid #b9d0c1; }
+.panel-tier.tier-row-3 > .member { flex-basis: 220px; max-width: 250px; }
+.panel-tier.tier-row-3 .member-photo { width: 118px; height: 118px; }
+.panel-tier.tier-row-4 > .member { flex-basis: 190px; max-width: 220px; padding-inline: 10px; }
+.panel-tier.tier-row-4 .member::before { height: 60px; }
+.panel-tier.tier-row-4 .member-photo { width: 96px; height: 96px; border-width: 4px; }
+.panel-tier.tier-row-4 .member h3 { font-size: 1.02rem; }
+.panel-tier.tier-row-4 .member-role { background: #f1f5f3; color: var(--c-muted); font-weight: 600; }
+.panel-tier + .panel-tier::before {
+	content: ""; position: absolute; left: 50%; top: -22px; width: 2px; height: 22px; background: var(--c-border);
+}
