@@ -9,7 +9,6 @@ $id      = get_the_ID();
 $cert    = get_post_meta( $id, '_sro_cert', true );
 $mobile  = get_post_meta( $id, '_sro_mobile', true );
 $address = get_post_meta( $id, '_sro_address', true );
-$social  = get_post_meta( $id, '_sro_social', true );
 $terms   = get_the_terms( $id, 'writer_area' );
 $areas   = ( $terms && ! is_wp_error( $terms ) ) ? wp_list_pluck( $terms, 'slug' ) : array();
 $search  = trim( get_the_title() . ' ' . $cert . ' ' . $mobile . ' ' . $address );
@@ -35,13 +34,13 @@ $search  = trim( get_the_title() . ' ' . $cert . ' ' . $mobile . ' ' . $address 
 				<div><dt>ঠিকানা</dt><dd><?php echo esc_html( $address ); ?></dd></div>
 			<?php endif; ?>
 		</dl>
-		<div class="dw-actions">
+		<div class="dw-foot">
 			<?php if ( $mobile ) : ?>
-				<a class="btn" href="tel:<?php echo esc_attr( sro_tel( $mobile ) ); ?>">কল করুন</a>
+				<div class="dw-actions">
+					<a class="btn" href="tel:<?php echo esc_attr( sro_tel( $mobile ) ); ?>">কল করুন</a>
+				</div>
 			<?php endif; ?>
-			<?php if ( $social ) : ?>
-				<a class="btn btn-outline" href="<?php echo esc_url( $social ); ?>" target="_blank" rel="noopener noreferrer">সোশ্যাল মিডিয়া</a>
-			<?php endif; ?>
+			<?php sro_render_social( $id ); ?>
 		</div>
 	</div>
 </article>

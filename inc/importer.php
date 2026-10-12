@@ -3,7 +3,7 @@
  * দলিল লেখক → CSV ইমপোর্ট
  *
  * Creates (or updates) deed writer profiles from a CSV file.
- * Columns: name, cert, mobile, address, area, social, photo
+ * Columns: name, cert, mobile, address, area, whatsapp, facebook, youtube, photo
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -42,7 +42,10 @@ function sro_import_field( $header ) {
 		'mobile'  => 'mobile',  'মোবাইল'   => 'mobile',
 		'address' => 'address', 'ঠিকানা'   => 'address',
 		'area'    => 'area',    'এলাকা'    => 'area',
-		'social'  => 'social',  'সোশ্যাল'  => 'social',
+		'social'  => 'facebook', 'সোশ্যাল'  => 'facebook',
+		'whatsapp' => 'whatsapp', 'হোয়াটসঅ্যাপ' => 'whatsapp',
+		'facebook' => 'facebook', 'ফেসবুক' => 'facebook',
+		'youtube' => 'youtube', 'ইউটিউব' => 'youtube',
 		'photo'   => 'photo',   'ছবি'      => 'photo',
 	);
 	return isset( $map[ $h ] ) ? $map[ $h ] : '';
@@ -127,7 +130,9 @@ function sro_import_handle() {
 			'mobile'  => '',
 			'address' => '',
 			'area'    => '',
-			'social'  => '',
+			'whatsapp' => '',
+			'facebook' => '',
+			'youtube' => '',
 			'photo'   => '',
 		);
 		foreach ( str_getcsv( $line ) as $i => $cell ) {
@@ -167,7 +172,11 @@ function sro_import_handle() {
 		update_post_meta( $post_id, '_sro_cert', sanitize_text_field( $row['cert'] ) );
 		update_post_meta( $post_id, '_sro_mobile', sanitize_text_field( $row['mobile'] ) );
 		update_post_meta( $post_id, '_sro_address', sanitize_text_field( $row['address'] ) );
-		update_post_meta( $post_id, '_sro_social', esc_url_raw( $row['social'] ) );
+		foreach ( array( 'whatsapp', 'facebook', 'youtube' ) as $net ) {
+			if ( '' !== $row[ $net ] ) {
+				update_post_meta( $post_id, '_sro_' . $net, sanitize_text_field( $row[ $net ] ) );
+			}
+		}
 
 		if ( '' !== $row['area'] ) {
 			wp_set_object_terms( $post_id, sanitize_text_field( $row['area'] ), 'writer_area' );
@@ -230,12 +239,12 @@ function sro_import_page() {
 		<?php endif; ?>
 
 		<p>প্রথম সারিতে কলামের নাম থাকতে হবে (ফাইল UTF-8 এ সেভ করুন):</p>
-		<p><code>name, cert, mobile, address, area, social, photo</code></p>
+		<p><code>name, cert, mobile, address, area, whatsapp, facebook, youtube, photo</code></p>
 		<ul style="list-style:disc;margin-left:20px;">
 			<li><strong>name</strong>: নাম (বাধ্যতামূলক)</li>
 			<li><strong>cert</strong>: সনদ নম্বর, <strong>mobile</strong>: মোবাইল, <strong>address</strong>: ঠিকানা</li>
 			<li><strong>area</strong>: এলাকা (না থাকলে নতুন তৈরি হবে)</li>
-			<li><strong>social</strong>: সোশ্যাল মিডিয়া লিংক (https:// দিয়ে)</li>
+			<li><strong>whatsapp</strong>: হোয়াটসঅ্যাপ নম্বর বা লিংক, <strong>facebook</strong> ও <strong>youtube</strong>: লিংক (https:// দিয়ে)</li>
 			<li><strong>photo</strong>: ছবির লিংক (ঐচ্ছিক)</li>
 		</ul>
 		<p>একই সনদ নম্বর বা মোবাইল নম্বর থাকলে নতুন না বানিয়ে ওই প্রোফাইল আপডেট হবে, তাই আবার ইমপোর্ট করলে ডুপ্লিকেট হবে না।</p>

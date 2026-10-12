@@ -77,7 +77,9 @@ function sro_directory_metabox_html( $post ) {
 		'_sro_cert'    => array( 'সনদ নম্বর', 'text' ),
 		'_sro_mobile'  => array( 'মোবাইল নম্বর', 'tel' ),
 		'_sro_address' => array( 'ঠিকানা', 'text' ),
-		'_sro_social'  => array( 'সোশ্যাল মিডিয়া লিংক (ফেসবুক/হোয়াটসঅ্যাপ ইত্যাদি)', 'url' ),
+		'_sro_whatsapp' => array( 'হোয়াটসঅ্যাপ (নম্বর বা লিংক)', 'text' ),
+		'_sro_facebook' => array( 'ফেসবুক (লিংক)', 'text' ),
+		'_sro_youtube'  => array( 'ইউটিউব (চ্যানেলের লিংক)', 'text' ),
 	);
 	foreach ( $fields as $key => $def ) {
 		printf(
@@ -101,13 +103,10 @@ function sro_directory_save( $post_id ) {
 	if ( ! current_user_can( 'edit_post', $post_id ) ) {
 		return;
 	}
-	foreach ( array( '_sro_cert', '_sro_mobile', '_sro_address' ) as $key ) {
+	foreach ( array( '_sro_cert', '_sro_mobile', '_sro_address', '_sro_whatsapp', '_sro_facebook', '_sro_youtube' ) as $key ) {
 		if ( isset( $_POST[ $key ] ) ) {
 			update_post_meta( $post_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
 		}
-	}
-	if ( isset( $_POST['_sro_social'] ) ) {
-		update_post_meta( $post_id, '_sro_social', esc_url_raw( wp_unslash( $_POST['_sro_social'] ) ) );
 	}
 }
 add_action( 'save_post_deed_writer', 'sro_directory_save' );

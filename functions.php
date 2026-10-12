@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.3.1' );
+define( 'SRO_VERSION', '1.4.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -119,7 +119,12 @@ function sro_tel( $number ) {
 		'০' => '0', '১' => '1', '২' => '2', '৩' => '3', '৪' => '4',
 		'৫' => '5', '৬' => '6', '৭' => '7', '৮' => '8', '৯' => '9',
 	) );
-	return preg_replace( '/[^0-9+]/', '', $number );
+	$number = preg_replace( '/[^0-9+]/', '', $number );
+	// Bangladesh mobile: 01XXXXXXXXX becomes +8801XXXXXXXXX so it dials from any phone.
+	if ( preg_match( '/^01[0-9]{9}$/', $number ) ) {
+		$number = '+88' . $number;
+	}
+	return $number;
 }
 
 /**
@@ -232,3 +237,84 @@ function sro_head_icons() {
 ", esc_url( $base . 'logo.png' ) );
 }
 add_action( 'wp_head', 'sro_head_icons', 5 );
+
+/**
+ * Social links of a deed writer, normalised to full URLs.
+ *
+ * @return array[] Each item has key, label, url and path.
+ */
+function sro_social_links( $post_id ) {
+	$paths  = array(
+		'whatsapp' => 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z',
+		'facebook' => 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+		'youtube'  => 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z',
+	);
+	$labels = array(
+		'whatsapp' => 'হোয়াটসঅ্যাপে মেসেজ করুন',
+		'facebook' => 'ফেসবুক প্রোফাইল',
+		'youtube'  => 'ইউটিউব চ্যানেল',
+	);
+	$out    = array();
+	foreach ( $paths as $key => $path ) {
+		$raw = trim( (string) get_post_meta( $post_id, '_sro_' . $key, true ) );
+		// Older profiles had a single "social" link: treat it as Facebook.
+		if ( 'facebook' === $key && '' === $raw ) {
+			$raw = trim( (string) get_post_meta( $post_id, '_sro_social', true ) );
+		}
+		$url = sro_social_url( $key, $raw );
+		if ( $url ) {
+			$out[] = array(
+				'key'   => $key,
+				'label' => $labels[ $key ],
+				'url'   => $url,
+				'path'  => $path,
+			);
+		}
+	}
+	return $out;
+}
+
+/**
+ * Turn what an editor typed (number, username or link) into a URL.
+ */
+function sro_social_url( $type, $value ) {
+	if ( '' === $value ) {
+		return '';
+	}
+	if ( preg_match( '#^https?://#i', $value ) ) {
+		return esc_url_raw( $value );
+	}
+	if ( 'whatsapp' === $type ) {
+		$digits = preg_replace( '/[^0-9]/', '', sro_tel( $value ) );
+		if ( preg_match( '/^0[0-9]{10}$/', $digits ) ) {
+			$digits = '880' . substr( $digits, 1 );
+		}
+		return strlen( $digits ) >= 10 ? 'https://wa.me/' . $digits : '';
+	}
+	if ( false !== strpos( $value, '.' ) ) {
+		return esc_url_raw( 'https://' . ltrim( $value, '/' ) );
+	}
+	$host = 'facebook' === $type ? 'https://www.facebook.com/' : 'https://www.youtube.com/';
+	return esc_url_raw( $host . ltrim( $value, '/' ) );
+}
+
+/**
+ * Print round social icons (only those filled in).
+ */
+function sro_render_social( $post_id ) {
+	$links = sro_social_links( $post_id );
+	if ( ! $links ) {
+		return;
+	}
+	echo '<ul class="dw-social" aria-label="সোশ্যাল মিডিয়া">';
+	foreach ( $links as $l ) {
+		printf(
+			'<li><a class="soc soc-%1$s" href="%2$s" target="_blank" rel="noopener noreferrer" aria-label="%3$s"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="%4$s"/></svg></a></li>',
+			esc_attr( $l['key'] ),
+			esc_url( $l['url'] ),
+			esc_attr( $l['label'] ),
+			esc_attr( $l['path'] )
+		);
+	}
+	echo '</ul>';
+}
