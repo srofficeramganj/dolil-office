@@ -44,7 +44,12 @@
 		var fixed = n.toFixed( dec );
 		fixed = fixed.replace( /(\.\d*?)0+$/, '$1' ).replace( /\.$/, '' );
 		var parts = fixed.split( '.' );
-		parts[ 0 ] = parts[ 0 ].replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
+		// Bangladeshi digit grouping: 12,34,567
+		var intPart = parts[ 0 ];
+		if ( intPart.length > 3 ) {
+			intPart = intPart.slice( 0, -3 ).replace( /\B(?=(\d{2})+(?!\d))/g, ',' ) + ',' + intPart.slice( -3 );
+		}
+		parts[ 0 ] = intPart;
 		return toBn( parts.join( '.' ) );
 	}
 
@@ -467,18 +472,26 @@
 	function initMouza( root ) {
 		var api = root.getAttribute( 'data-api' );
 		var hasData = root.getAttribute( 'data-has-data' ) === '1';
+		var BAZAR = 'বাজার এলাকা';
+		var AREA_ORDER = [ 'পৌরসভা এলাকা', 'পৌরসভা এলাকার বাহিরে', BAZAR ];
 		var districtEl = $( '#mz-district', root );
 		var upazilaEl = $( '#mz-upazila', root );
+		var areaEl = $( '#mz-area', root );
 		var searchEl = $( '#mz-search', root );
 		var mouzaEl = $( '#mz-mouza', root );
 		var hintEl = $( '#mz-mouza-hint', root );
 		var catEl = $( '#mz-category', root );
+		var catLabel = $( '#mz-category-label', root );
+		var dagRow = $( '#mz-dag-row', root );
+		var dagEl = $( '#mz-dag', root );
 		var qtyEl = $( '#mz-qty', root );
 		var unitEl = $( '#mz-unit', root );
 		var errEl = $( '#mz-error', root );
 		var emptyEl = $( '#mz-empty', root );
 		var outEl = $( '#mz-output', root );
+		var flagEl = $( '#mz-flag', root );
 		var printBtn = $( '#mz-print', root );
+		var locations = [];
 		var mouzas = [];
 		var rates = [];
 
@@ -526,24 +539,31 @@
 			printBtn.disabled = true;
 		}
 
+		function isBazar() {
+			return areaEl.value === BAZAR;
+		}
+
+		function updateLabels() {
+			var bazar = isBazar();
+			catLabel.textContent = bazar ? 'বাজারের নাম' : 'জমির শ্রেণি';
+			dagRow.hidden = ! bazar;
+		}
+
+		function lockInputs( locked ) {
+			catEl.disabled = locked;
+			qtyEl.disabled = locked;
+			unitEl.disabled = locked;
+		}
+
 		function renderMouzaList() {
 			var term = toEn( searchEl.value ).trim().toLowerCase();
 			var list = mouzas.filter( function ( m ) {
 				return ! term || toEn( m.name ).toLowerCase().indexOf( term ) !== -1 || ( m.code && toEn( m.code ).indexOf( term ) !== -1 );
 			} );
-			// Same name more than once: show the code so they can be told apart.
-			var names = {};
-			mouzas.forEach( function ( m ) {
-				names[ m.name ] = ( names[ m.name ] || 0 ) + 1;
-			} );
 			fillSelect(
 				mouzaEl,
 				list.map( function ( m ) {
-					var label = m.name;
-					if ( names[ m.name ] > 1 || m.code ) {
-						label += m.code ? ' (কোড: ' + m.code + ')' : '';
-					}
-					return { value: m.key, label: label };
+					return { value: m.key, label: m.name + ( m.code ? ' (জেএল ' + m.code + ')' : '' ) };
 				} ),
 				list.length ? '— মৌজা নির্বাচন করুন (' + toBn( list.length ) + ' টি) —' : '— কোনো মৌজা পাওয়া যায়নি —',
 				true
@@ -555,18 +575,22 @@
 		function loadMouzas() {
 			mouzas = [];
 			rates = [];
+			updateLabels();
 			fillSelect( catEl, [], '— আগে মৌজা নির্বাচন করুন —' );
-			catEl.disabled = true;
-			qtyEl.disabled = true;
-			unitEl.disabled = true;
+			lockInputs( true );
 			if ( ! hasData ) {
 				return;
 			}
+			if ( ! areaEl.value ) {
+				fillSelect( mouzaEl, [], '— আগে এলাকার ধরন নির্বাচন করুন —' );
+				resetResult( 'এলাকার ধরন, মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' );
+				return;
+			}
 			resetResult( 'মৌজা লোড হচ্ছে…' );
-			get( 'list', { district: districtEl.value, upazila: upazilaEl.value } ).then( function ( rows ) {
+			get( 'list', { district: districtEl.value, upazila: upazilaEl.value, area: areaEl.value } ).then( function ( rows ) {
 				mouzas = rows;
 				renderMouzaList();
-				resetResult( rows.length ? 'মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' : 'এই উপজেলার জন্য মৌজা রেটের তথ্য এখনো সংযুক্ত করা হয়নি।' );
+				resetResult( rows.length ? 'মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' : 'এই এলাকার জন্য মৌজা রেটের তথ্য এখনো সংযুক্ত করা হয়নি।' );
 			} ).catch( function () {
 				resetResult( 'তথ্য লোড করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।' );
 			} );
@@ -574,11 +598,9 @@
 
 		function loadRates() {
 			rates = [];
-			fillSelect( catEl, [], '— জমির শ্রেণি নির্বাচন করুন —' );
+			fillSelect( catEl, [], isBazar() ? '— বাজার নির্বাচন করুন —' : '— জমির শ্রেণি নির্বাচন করুন —' );
 			if ( ! mouzaEl.value ) {
-				catEl.disabled = true;
-				qtyEl.disabled = true;
-				unitEl.disabled = true;
+				lockInputs( true );
 				resetResult( 'মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' );
 				return;
 			}
@@ -590,11 +612,9 @@
 					rows.map( function ( r, i ) {
 						return { value: String( i ), label: r.category };
 					} ),
-					rows.length ? '— জমির শ্রেণি নির্বাচন করুন —' : '— শ্রেণি পাওয়া যায়নি —'
+					rows.length ? ( isBazar() ? '— বাজার নির্বাচন করুন —' : '— জমির শ্রেণি নির্বাচন করুন —' ) : '— শ্রেণি পাওয়া যায়নি —'
 				);
-				catEl.disabled = ! rows.length;
-				qtyEl.disabled = ! rows.length;
-				unitEl.disabled = ! rows.length;
+				lockInputs( ! rows.length );
 				resetResult( rows.length ? 'জমির শ্রেণি নির্বাচন করুন।' : 'এই মৌজার জন্য রেটের তথ্য পাওয়া যায়নি।' );
 			} ).catch( function () {
 				resetResult( 'তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।' );
@@ -624,20 +644,48 @@
 			dl.appendChild( wrap );
 		}
 
+		/** Does the typed plot number appear in a dag list like "১,৩,৫-৯, ৩৫৭-৩৬১"? */
+		function dagInList( text, wanted ) {
+			var n = parseNumber( wanted );
+			if ( isNaN( n ) ) {
+				return null;
+			}
+			var parts = toEn( text ).split( /[,\s]+/ );
+			for ( var i = 0; i < parts.length; i++ ) {
+				var m = parts[ i ].match( /^(\d+)(?:[-–](\d+))?/ );
+				if ( ! m ) {
+					continue;
+				}
+				var a = parseInt( m[ 1 ], 10 );
+				var b = m[ 2 ] ? parseInt( m[ 2 ], 10 ) : a;
+				if ( n >= Math.min( a, b ) && n <= Math.max( a, b ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		function calculate() {
 			setError( '' );
+			flagEl.hidden = true;
 			var idx = catEl.value;
 			if ( idx === '' || ! rates[ idx ] ) {
-				resetResult( 'জমির শ্রেণি নির্বাচন করুন।' );
+				resetResult( isBazar() ? 'বাজার নির্বাচন করুন।' : 'জমির শ্রেণি নির্বাচন করুন।' );
 				return;
 			}
 			var r = rates[ idx ];
 			var dl = $( '#mz-dl', root );
 			dl.innerHTML = '';
-			row( dl, 'নির্বাচিত মৌজা', r.mouza );
-			row( dl, 'জমির শ্রেণি', r.category );
+			row( dl, 'নির্বাচিত মৌজা', r.mouza + ( r.code ? ' (জেএল ' + r.code + ')' : '' ) );
+			if ( r.area ) {
+				row( dl, 'এলাকার ধরন', r.area );
+			}
+			row( dl, isBazar() ? 'বাজার' : 'জমির শ্রেণি', r.category );
 			row( dl, 'প্রযোজ্য সরকারি রেট', formatNumber( r.rate, 2 ) + ' টাকা' );
 			row( dl, 'রেটের একক', r.unit );
+			if ( r.carried ) {
+				row( dl, 'চিহ্ন (*)', '২০২৩-২০২৪ সনের মূল্য ২০২৫-২০২৬ এর জন্য বহাল রাখা হয়েছে' );
+			}
 
 			var big = $( '#mz-big', root );
 			var raw = qtyEl.value.trim();
@@ -664,66 +712,102 @@
 			} else {
 				big.textContent = formatNumber( r.rate, 2 ) + ' টাকা (' + r.unit + ')';
 			}
+
+			if ( r.dag ) {
+				row( dl, 'দাগ নং / টীকা', r.dag );
+				if ( isBazar() && dagEl.value.trim() ) {
+					var inList = dagInList( r.dag, dagEl.value );
+					if ( inList === null ) {
+						setError( 'সঠিক দাগ নম্বর লিখুন (শুধু সংখ্যা)।' );
+					} else {
+						flagEl.hidden = false;
+						flagEl.textContent = inList
+							? '✓ দাগ নং ' + toBn( toEn( dagEl.value.trim() ) ) + ' এই বাজার এলাকার তালিকায় আছে।'
+							: '✗ দাগ নং ' + toBn( toEn( dagEl.value.trim() ) ) + ' এই বাজারের তালিকায় পাওয়া যায়নি (অন্য বাজার বা মৌজা দেখুন)।';
+						flagEl.className = 'result-flag ' + ( inList ? 'ok' : 'no' );
+					}
+				}
+			}
 			row( dl, 'তথ্যের উৎস', r.source || 'উল্লেখ নেই' );
 			row( dl, 'কার্যকর সময়কাল', r.period || 'উল্লেখ নেই' );
-			if ( r.verified ) {
-				row( dl, 'সর্বশেষ যাচাই', r.verified );
-			}
+			row( dl, 'যাচাই অবস্থা', r.verified ? 'যাচাইকৃত' + ( r.checked ? ' (' + r.checked + ')' : '' ) : 'যাচাই চলছে' );
 			outEl.hidden = false;
 			emptyEl.hidden = true;
 			printBtn.disabled = false;
 		}
 
+		function setupLocations( res ) {
+			locations = res.rows || [];
+			var districts = [];
+			locations.forEach( function ( r ) {
+				if ( districts.indexOf( r.district ) === -1 ) {
+					districts.push( r.district );
+				}
+			} );
+			if ( ! districts.length ) {
+				return;
+			}
+			fillSelect( districtEl, districts.map( function ( d ) {
+				return { value: d, label: d };
+			} ), '— জেলা —' );
+			districtEl.value = districts.indexOf( 'লক্ষ্মীপুর' ) !== -1 ? 'লক্ষ্মীপুর' : districts[ 0 ];
+			fillUpazilas();
+		}
+
+		function fillUpazilas() {
+			var ups = [];
+			locations.forEach( function ( r ) {
+				if ( r.district === districtEl.value && ups.indexOf( r.upazila ) === -1 ) {
+					ups.push( r.upazila );
+				}
+			} );
+			fillSelect( upazilaEl, ups.map( function ( u ) {
+				return { value: u, label: u };
+			} ), '— উপজেলা —' );
+			upazilaEl.value = ups.indexOf( 'রামগঞ্জ' ) !== -1 ? 'রামগঞ্জ' : ( ups[ 0 ] || '' );
+			fillAreas();
+		}
+
+		function fillAreas() {
+			var areas = [];
+			locations.forEach( function ( r ) {
+				if ( r.district === districtEl.value && r.upazila === upazilaEl.value && r.area && areas.indexOf( r.area ) === -1 ) {
+					areas.push( r.area );
+				}
+			} );
+			areas.sort( function ( a, b ) {
+				var ia = AREA_ORDER.indexOf( a );
+				var ib = AREA_ORDER.indexOf( b );
+				return ( ia === -1 ? 99 : ia ) - ( ib === -1 ? 99 : ib );
+			} );
+			fillSelect( areaEl, areas.map( function ( a ) {
+				return { value: a, label: a };
+			} ), '— এলাকার ধরন নির্বাচন করুন —' );
+			loadMouzas();
+		}
+
 		searchEl.addEventListener( 'input', renderMouzaList );
+		areaEl.addEventListener( 'change', loadMouzas );
 		mouzaEl.addEventListener( 'change', loadRates );
 		catEl.addEventListener( 'change', calculate );
 		qtyEl.addEventListener( 'input', calculate );
+		dagEl.addEventListener( 'input', calculate );
 		unitEl.addEventListener( 'change', calculate );
-		upazilaEl.addEventListener( 'change', loadMouzas );
+		upazilaEl.addEventListener( 'change', fillAreas );
+		districtEl.addEventListener( 'change', fillUpazilas );
 		$( '#mz-reset', root ).addEventListener( 'click', function () {
 			searchEl.value = '';
 			qtyEl.value = '';
-			mouzaEl.value = '';
-			renderMouzaList();
-			loadRates();
+			dagEl.value = '';
+			areaEl.value = '';
+			loadMouzas();
 		} );
 		printBtn.addEventListener( 'click', function () {
 			window.print();
 		} );
 
-		// Districts / upazilas that actually have data (default list stays as fallback).
 		if ( hasData ) {
-			get( 'locations' ).then( function ( res ) {
-				if ( ! res.rows || ! res.rows.length ) {
-					return;
-				}
-				var districts = [];
-				res.rows.forEach( function ( r ) {
-					if ( districts.indexOf( r.district ) === -1 ) {
-						districts.push( r.district );
-					}
-				} );
-				fillSelect( districtEl, districts.map( function ( d ) {
-					return { value: d, label: d };
-				} ), '— জেলা —' );
-				districtEl.value = districts.indexOf( 'লক্ষ্মীপুর' ) !== -1 ? 'লক্ষ্মীপুর' : districts[ 0 ];
-
-				var fillUpazilas = function () {
-					var ups = res.rows.filter( function ( r ) {
-						return r.district === districtEl.value;
-					} ).map( function ( r ) {
-						return { value: r.upazila, label: r.upazila };
-					} );
-					fillSelect( upazilaEl, ups, '— উপজেলা —' );
-					upazilaEl.value = ups.length ? ups[ 0 ].value : '';
-				};
-				fillUpazilas();
-				districtEl.addEventListener( 'change', function () {
-					fillUpazilas();
-					loadMouzas();
-				} );
-				loadMouzas();
-			} ).catch( function () {
+			get( 'locations' ).then( setupLocations ).catch( function () {
 				resetResult( 'তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।' );
 			} );
 		}

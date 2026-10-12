@@ -1,5 +1,5 @@
 /**
- * Mouza rates admin: save, add and delete a row without reloading the page.
+ * Mouza rates admin: save, add, delete and verify rows without reloading.
  */
 ( function () {
 	'use strict';
@@ -43,23 +43,61 @@
 
 	function collect( row ) {
 		var data = { action: 'sro_mouza_save', id: row.getAttribute( 'data-id' ) || '0' };
-		Array.prototype.forEach.call( row.querySelectorAll( 'input[name]' ), function ( input ) {
-			data[ input.name ] = input.value;
+		Array.prototype.forEach.call( row.querySelectorAll( 'input[name], select[name]' ), function ( el ) {
+			if ( el.type === 'checkbox' ) {
+				data[ el.name ] = el.checked ? '1' : '0';
+			} else {
+				data[ el.name ] = el.value;
+			}
 		} );
 		return data;
 	}
 
 	// Mark edited rows.
-	wrap.addEventListener( 'input', function ( e ) {
+	function markDirty( e ) {
 		var row = e.target.closest ? e.target.closest( 'tr' ) : null;
 		if ( row && row.getAttribute( 'data-id' ) !== '0' ) {
 			row.classList.add( 'is-dirty' );
 		}
-	} );
+	}
+	wrap.addEventListener( 'input', markDirty );
+	wrap.addEventListener( 'change', markDirty );
 
 	wrap.addEventListener( 'click', function ( e ) {
 		var target = e.target;
 		var row = target.closest ? target.closest( 'tr' ) : null;
+
+		if ( target.id === 'sro-verify-page' ) {
+			e.preventDefault();
+			var ids = wrap.getAttribute( 'data-ids' );
+			if ( ! ids ) {
+				return;
+			}
+			if ( ! window.confirm( 'এই পেজের সব সারি "যাচাইকৃত" হিসেবে চিহ্নিত হবে। আপনি কি মূল কাগজের সাথে মিলিয়ে দেখেছেন?' ) ) {
+				return;
+			}
+			var msg = document.getElementById( 'sro-bulk-msg' );
+			target.disabled = true;
+			post( { action: 'sro_mouza_bulk_verify', ids: ids, value: '1' } ).then( function ( res ) {
+				target.disabled = false;
+				if ( res && res.success ) {
+					msg.textContent = 'যাচাইকৃত হয়েছে ✓ (পেজ রিফ্রেশ হচ্ছে)';
+					msg.className = 'sro-msg ok';
+					window.setTimeout( function () {
+						window.location.reload();
+					}, 700 );
+				} else {
+					msg.textContent = ( res && res.data && res.data.message ) || 'সংরক্ষণ করা যায়নি।';
+					msg.className = 'sro-msg err';
+				}
+			} ).catch( function () {
+				target.disabled = false;
+				msg.textContent = 'নেটওয়ার্ক ত্রুটি।';
+				msg.className = 'sro-msg err';
+			} );
+			return;
+		}
+
 		if ( ! row ) {
 			return;
 		}
@@ -73,11 +111,12 @@
 				target.disabled = false;
 				if ( res && res.success ) {
 					if ( isNew ) {
-						// Reload so the new row appears in the list.
 						window.location.reload();
 						return;
 					}
 					row.classList.remove( 'is-dirty' );
+					var ver = row.querySelector( 'input[name="verified"]' );
+					row.classList.toggle( 'is-unverified', ! ( ver && ver.checked ) );
 					message( row, 'সংরক্ষিত হয়েছে ✓', true );
 				} else {
 					message( row, ( res && res.data && res.data.message ) || 'সংরক্ষণ করা যায়নি।', false );

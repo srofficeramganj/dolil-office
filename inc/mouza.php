@@ -2,15 +2,19 @@
 /**
  * Mouza rate data: database table, CSV/JSON importer (admin) and a read-only REST API.
  *
- * No rate data ships with the theme. Only verified official data supplied by
- * the office is ever shown or used in calculations.
+ * Modelled on the Sub-Registrar office's "সম্পত্তির সর্বনিম্ন বাজার মূল্য তালিকা":
+ * area type (পৌরসভা এলাকা / পৌরসভা এলাকার বাহিরে / বাজার এলাকা) → mouza (JL no.)
+ * → land category → rate per শতাংশ, with "(*) carried over" marks and, for bazar
+ * areas, a list of plot (dag) numbers.
+ *
+ * No rate data ships with the theme. Only data supplied by the office is shown.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-const SRO_MOUZA_DB_VERSION = '1';
+const SRO_MOUZA_DB_VERSION = '2';
 
 function sro_mouza_table() {
 	global $wpdb;
@@ -18,7 +22,7 @@ function sro_mouza_table() {
 }
 
 /**
- * Create the table once.
+ * Create / upgrade the table.
  */
 function sro_mouza_install() {
 	if ( get_option( 'sro_mouza_db' ) === SRO_MOUZA_DB_VERSION ) {
@@ -33,26 +37,35 @@ function sro_mouza_install() {
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			district varchar(100) NOT NULL DEFAULT '',
 			upazila varchar(100) NOT NULL DEFAULT '',
+			area_type varchar(80) NOT NULL DEFAULT '',
 			mouza_name varchar(150) NOT NULL DEFAULT '',
 			mouza_code varchar(50) NOT NULL DEFAULT '',
-			land_category varchar(150) NOT NULL DEFAULT '',
+			land_category varchar(190) NOT NULL DEFAULT '',
 			rate decimal(16,2) NOT NULL DEFAULT 0,
 			rate_unit varchar(50) NOT NULL DEFAULT '',
 			effective_period varchar(100) NOT NULL DEFAULT '',
+			carried tinyint(1) NOT NULL DEFAULT 0,
+			dag_note text NOT NULL,
 			source_ref text NOT NULL,
+			page_ref varchar(60) NOT NULL DEFAULT '',
 			last_verified varchar(50) NOT NULL DEFAULT '',
+			verified tinyint(1) NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id),
-			KEY loc (district, upazila, mouza_name)
+			KEY loc2 (district, upazila, area_type, mouza_name)
 		) {$charset};"
 	);
 	update_option( 'sro_mouza_db', SRO_MOUZA_DB_VERSION, false );
 }
 add_action( 'init', 'sro_mouza_install', 97 );
 
-function sro_mouza_count() {
+function sro_mouza_count( $where = '' ) {
 	global $wpdb;
 	$table = sro_mouza_table();
-	return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+}
+
+function sro_mouza_unverified_count() {
+	return sro_mouza_count( 'WHERE verified = 0' );
 }
 
 /**
@@ -66,6 +79,13 @@ function sro_mouza_digits( $value ) {
 			'৫' => '5', '৬' => '6', '৭' => '7', '৮' => '8', '৯' => '9',
 		)
 	);
+}
+
+/**
+ * Area types in the order citizens expect them.
+ */
+function sro_mouza_area_types() {
+	return array( 'পৌরসভা এলাকা', 'পৌরসভা এলাকার বাহিরে', 'বাজার এলাকা' );
 }
 
 /* --------------------------------------------------------------------
@@ -98,7 +118,7 @@ function sro_mouza_import() {
 	if ( ! in_array( $ext, array( 'csv', 'json' ), true ) ) {
 		sro_mouza_back( array( 'sro_err' => 'type' ) );
 	}
-	if ( (int) $_FILES['rates']['size'] > 5 * MB_IN_BYTES ) {
+	if ( (int) $_FILES['rates']['size'] > 8 * MB_IN_BYTES ) {
 		sro_mouza_back( array( 'sro_err' => 'size' ) );
 	}
 
@@ -148,19 +168,26 @@ function sro_mouza_import() {
 			$skipped++;
 			continue;
 		}
+		$carried  = in_array( strtolower( $get( 'carried' ) ), array( '1', 'yes', 'true', '*', 'হ্যাঁ' ), true ) ? 1 : 0;
+		$verified = in_array( strtolower( $get( 'verified' ) ), array( '1', 'yes', 'true', 'হ্যাঁ' ), true ) ? 1 : 0;
 		$wpdb->insert(
 			$table,
 			array(
 				'district'         => sanitize_text_field( $get( 'district' ) ),
 				'upazila'          => sanitize_text_field( $get( 'upazila' ) ),
+				'area_type'        => sanitize_text_field( $get( 'area_type' ) ),
 				'mouza_name'       => sanitize_text_field( $get( 'mouza_name' ) ),
 				'mouza_code'       => sanitize_text_field( $get( 'mouza_code' ) ),
 				'land_category'    => sanitize_text_field( $get( 'land_category' ) ),
 				'rate'             => (float) $rate,
 				'rate_unit'        => sanitize_text_field( $get( 'rate_unit' ) ),
 				'effective_period' => sanitize_text_field( $get( 'effective_period' ) ),
+				'carried'          => $carried,
+				'dag_note'         => sanitize_textarea_field( $get( 'dag_note' ) ),
 				'source_ref'       => sanitize_textarea_field( $get( 'source_reference' ) ? $get( 'source_reference' ) : $get( 'source_ref' ) ),
+				'page_ref'         => sanitize_text_field( $get( 'page_ref' ) ),
 				'last_verified'    => sanitize_text_field( $get( 'last_verified' ) ),
+				'verified'         => $verified,
 			)
 		);
 		$added++;
@@ -199,13 +226,13 @@ function sro_mouza_page() {
 	$skipped = isset( $_GET['sro_skipped'] ) ? (int) $_GET['sro_skipped'] : 0;
 	$cleared = isset( $_GET['sro_cleared'] );
 	// phpcs:enable
-	$errors = array(
+	$errors  = array(
 		'file' => 'ফাইল আপলোড হয়নি।',
 		'type' => 'শুধু .csv বা .json ফাইল দিন।',
-		'size' => 'ফাইল ৫ MB এর বেশি।',
+		'size' => 'ফাইল ৮ MB এর বেশি।',
 		'json' => 'JSON ফাইলটি সঠিক নয়।',
 	);
-	$summary = $count ? $wpdb->get_results( "SELECT district, upazila, COUNT(DISTINCT CONCAT_WS('|', mouza_name, mouza_code)) AS mouzas, COUNT(*) AS rows_count FROM {$table} GROUP BY district, upazila ORDER BY district, upazila" ) : array(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	$summary = $count ? $wpdb->get_results( "SELECT district, upazila, area_type, COUNT(DISTINCT CONCAT_WS('|', mouza_name, mouza_code)) AS mouzas, COUNT(*) AS rows_count, SUM(verified) AS ok FROM {$table} GROUP BY district, upazila, area_type ORDER BY district, upazila, area_type" ) : array(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	?>
 	<div class="wrap">
 		<h1>মৌজা রেট ইমপোর্ট</h1>
@@ -225,23 +252,26 @@ function sro_mouza_page() {
 		<?php endif; ?></p>
 
 		<?php if ( $summary ) : ?>
-			<table class="widefat striped" style="max-width:640px;">
-				<thead><tr><th>জেলা</th><th>উপজেলা</th><th>মৌজা সংখ্যা</th><th>রেটের সারি</th></tr></thead>
+			<table class="widefat striped" style="max-width:760px;">
+				<thead><tr><th>জেলা</th><th>উপজেলা</th><th>এলাকার ধরন</th><th>মৌজা</th><th>রেটের সারি</th><th>যাচাইকৃত</th></tr></thead>
 				<tbody>
 				<?php foreach ( $summary as $r ) : ?>
-					<tr><td><?php echo esc_html( $r->district ); ?></td><td><?php echo esc_html( $r->upazila ); ?></td><td><?php echo esc_html( $r->mouzas ); ?></td><td><?php echo esc_html( $r->rows_count ); ?></td></tr>
+					<tr><td><?php echo esc_html( $r->district ); ?></td><td><?php echo esc_html( $r->upazila ); ?></td><td><?php echo esc_html( $r->area_type ); ?></td><td><?php echo esc_html( $r->mouzas ); ?></td><td><?php echo esc_html( $r->rows_count ); ?></td><td><?php echo esc_html( (int) $r->ok ); ?></td></tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>
 		<?php endif; ?>
 
-		<h2 style="margin-top:28px;">সরকারি মৌজা রেটের তথ্য ইমপোর্ট</h2>
-		<p>শুধু <strong>যাচাইকৃত সরকারি</strong> মৌজা রেট ইমপোর্ট করুন। ফাইলের প্রথম সারিতে নিচের কলামের নাম থাকতে হবে (CSV বা JSON; Excel থেকে "CSV UTF-8" হিসেবে সেভ করুন):</p>
-		<p><code>district, upazila, mouza_name, mouza_code, land_category, rate, rate_unit, effective_period, source_reference, last_verified</code></p>
+		<h2 style="margin-top:28px;">মৌজা রেটের তথ্য ইমপোর্ট</h2>
+		<p>ফাইলের প্রথম সারিতে কলামের নাম থাকতে হবে (CSV বা JSON; Excel থেকে "CSV UTF-8" হিসেবে সেভ করুন):</p>
+		<p><code>district, upazila, area_type, mouza_name, mouza_code, land_category, rate, rate_unit, effective_period, carried, dag_note, source_reference, page_ref, last_verified, verified</code></p>
 		<ul style="list-style:disc;margin-left:20px;">
-			<li><strong>district, upazila, mouza_name, land_category, rate, rate_unit</strong> বাধ্যতামূলক (rate_unit যেমন: প্রতি শতাংশ / প্রতি একর)।</li>
-			<li><strong>mouza_code</strong> থাকলে একই নামের একাধিক মৌজা আলাদাভাবে চেনা যাবে।</li>
-			<li><strong>source_reference</strong>: কোন সরকারি প্রজ্ঞাপন/নথি থেকে নেওয়া (সাইটে দেখানো হবে)।</li>
+			<li><strong>বাধ্যতামূলক:</strong> district, upazila, mouza_name, land_category, rate, rate_unit</li>
+			<li><strong>area_type:</strong> পৌরসভা এলাকা / পৌরসভা এলাকার বাহিরে / বাজার এলাকা</li>
+			<li><strong>mouza_code:</strong> জেএল নম্বর (একই নামের মৌজা আলাদা চেনার জন্য)</li>
+			<li><strong>carried:</strong> ১ হলে "(*) পূর্ববর্তী বছরের মূল্য বহাল" চিহ্ন দেখাবে</li>
+			<li><strong>dag_note:</strong> দাগ নম্বর/টীকা (বাজার এলাকায় বিশেষ করে)</li>
+			<li><strong>verified:</strong> ১ হলে "যাচাইকৃত" ধরা হবে; না দিলে ০ (যাচাই বাকি)</li>
 		</ul>
 		<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="sro_mouza_import">
@@ -278,19 +308,21 @@ function sro_mouza_rest_routes() {
 			'callback'            => function () {
 				global $wpdb;
 				$table = sro_mouza_table();
-				$rows  = $wpdb->get_results( "SELECT DISTINCT district, upazila FROM {$table} ORDER BY district, upazila" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$rows  = $wpdb->get_results( "SELECT DISTINCT district, upazila, area_type FROM {$table} ORDER BY district, upazila, area_type" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				return rest_ensure_response(
 					array(
-						'rows'  => array_map(
+						'rows'       => array_map(
 							function ( $r ) {
 								return array(
 									'district' => $r->district,
 									'upazila'  => $r->upazila,
+									'area'     => $r->area_type,
 								);
 							},
 							(array) $rows
 						),
-						'total' => sro_mouza_count(),
+						'total'      => sro_mouza_count(),
+						'unverified' => sro_mouza_unverified_count(),
 					)
 				);
 			},
@@ -306,15 +338,17 @@ function sro_mouza_rest_routes() {
 			'args'                => array(
 				'district' => array( 'sanitize_callback' => 'sanitize_text_field' ),
 				'upazila'  => array( 'sanitize_callback' => 'sanitize_text_field' ),
+				'area'     => array( 'sanitize_callback' => 'sanitize_text_field' ),
 			),
 			'callback'            => function ( WP_REST_Request $req ) {
 				global $wpdb;
 				$table = sro_mouza_table();
 				$rows  = $wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT DISTINCT mouza_name, mouza_code, MD5(CONCAT_WS('|', district, upazila, mouza_name, mouza_code)) AS k FROM {$table} WHERE district = %s AND upazila = %s ORDER BY mouza_name", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT DISTINCT mouza_name, mouza_code, MD5(CONCAT_WS('|', district, upazila, area_type, mouza_name, mouza_code)) AS k FROM {$table} WHERE district = %s AND upazila = %s AND area_type = %s ORDER BY mouza_name", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						$req['district'],
-						$req['upazila']
+						$req['upazila'],
+						(string) $req['area']
 					)
 				);
 				return rest_ensure_response(
@@ -352,7 +386,7 @@ function sro_mouza_rest_routes() {
 				$table = sro_mouza_table();
 				$rows  = $wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT mouza_name, mouza_code, land_category, rate, rate_unit, effective_period, source_ref, last_verified FROM {$table} WHERE MD5(CONCAT_WS('|', district, upazila, mouza_name, mouza_code)) = %s ORDER BY land_category", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						"SELECT mouza_name, mouza_code, area_type, land_category, rate, rate_unit, effective_period, carried, dag_note, source_ref, page_ref, last_verified, verified FROM {$table} WHERE MD5(CONCAT_WS('|', district, upazila, area_type, mouza_name, mouza_code)) = %s ORDER BY id", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						$req['key']
 					)
 				);
@@ -360,13 +394,19 @@ function sro_mouza_rest_routes() {
 					array_map(
 						function ( $r ) {
 							return array(
-								'mouza'     => $r->mouza_name,
-								'category'  => $r->land_category,
-								'rate'      => (float) $r->rate,
-								'unit'      => $r->rate_unit,
-								'period'    => $r->effective_period,
-								'source'    => $r->source_ref,
-								'verified'  => $r->last_verified,
+								'mouza'    => $r->mouza_name,
+								'code'     => $r->mouza_code,
+								'area'     => $r->area_type,
+								'category' => $r->land_category,
+								'rate'     => (float) $r->rate,
+								'unit'     => $r->rate_unit,
+								'period'   => $r->effective_period,
+								'carried'  => (bool) $r->carried,
+								'dag'      => $r->dag_note,
+								'source'   => $r->source_ref,
+								'page'     => $r->page_ref,
+								'verified' => (bool) $r->verified,
+								'checked'  => $r->last_verified,
 							);
 						},
 						(array) $rows

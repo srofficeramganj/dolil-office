@@ -6,8 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 get_header();
-$units    = sro_land_units();
-$has_data = sro_mouza_count() > 0;
+$units      = sro_land_units();
+$has_data   = sro_mouza_count() > 0;
+$unverified = $has_data ? sro_mouza_unverified_count() : 0;
 ?>
 <div class="section">
 	<div class="container container-narrow">
@@ -19,6 +20,11 @@ $has_data = sro_mouza_count() > 0;
 				<div class="notice-box notice-pending" role="status">
 					<strong>মৌজা রেটের তথ্য এখনো সংযুক্ত করা হয়নি।</strong>
 					সরকারি যাচাইকৃত তথ্য যুক্ত হলে এখানে মৌজা ও জমির শ্রেণি অনুযায়ী রেট দেখা যাবে। তথ্য না থাকায় কোনো মূল্য হিসাব করা হচ্ছে না।
+				</div>
+			<?php elseif ( $unverified > 0 ) : ?>
+				<div class="notice-box notice-pending" role="status">
+					<strong>তথ্য যাচাইয়ের কাজ চলছে।</strong>
+					এই তথ্য সাব-রেজিস্ট্রারের কার্যালয়ের "সম্পত্তির সর্বনিম্ন বাজার মূল্য তালিকা ২০২৫-২০২৬" থেকে সংকলিত। চূড়ান্ত তথ্যের জন্য অফিসে রক্ষিত মূল তালিকা দেখুন।
 				</div>
 			<?php endif; ?>
 
@@ -32,17 +38,28 @@ $has_data = sro_mouza_count() > 0;
 					<select id="mz-upazila"><option value="রামগঞ্জ">রামগঞ্জ</option></select>
 				</div>
 				<div class="form-row">
+					<label for="mz-area">এলাকার ধরন</label>
+					<select id="mz-area" <?php disabled( ! $has_data ); ?>>
+						<option value="">— এলাকার ধরন নির্বাচন করুন —</option>
+					</select>
+				</div>
+				<div class="form-row">
 					<label for="mz-search">মৌজার নাম খুঁজুন</label>
-					<input type="search" id="mz-search" autocomplete="off" placeholder="মৌজার নাম লিখুন" <?php disabled( ! $has_data ); ?>>
+					<input type="search" id="mz-search" autocomplete="off" placeholder="মৌজার নাম বা জেএল নম্বর লিখুন" <?php disabled( ! $has_data ); ?>>
 				</div>
 				<div class="form-row">
 					<label for="mz-mouza">মৌজা</label>
-					<select id="mz-mouza" <?php disabled( ! $has_data ); ?>><option value="">— মৌজা নির্বাচন করুন —</option></select>
+					<select id="mz-mouza" <?php disabled( ! $has_data ); ?>><option value="">— আগে এলাকার ধরন নির্বাচন করুন —</option></select>
 					<p class="hint" id="mz-mouza-hint" hidden></p>
 				</div>
 				<div class="form-row">
-					<label for="mz-category">জমির শ্রেণি</label>
+					<label for="mz-category" id="mz-category-label">জমির শ্রেণি</label>
 					<select id="mz-category" disabled><option value="">— আগে মৌজা নির্বাচন করুন —</option></select>
+				</div>
+				<div class="form-row" id="mz-dag-row" hidden>
+					<label for="mz-dag">দাগ নম্বর (ঐচ্ছিক)</label>
+					<input type="text" id="mz-dag" inputmode="numeric" autocomplete="off" placeholder="যেমন: ৯০৫">
+					<p class="hint">দাগ নম্বর লিখলে দেখা যাবে সেটি এই বাজার এলাকার তালিকায় আছে কি না।</p>
 				</div>
 
 				<div class="calc-units">
@@ -72,10 +89,11 @@ $has_data = sro_mouza_count() > 0;
 			<section class="result-card" id="mz-result" aria-live="polite" aria-labelledby="mz-result-h">
 				<h2 id="mz-result-h">ফলাফল</h2>
 				<p class="result-empty" id="mz-empty">
-					<?php echo $has_data ? 'মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' : 'মৌজা রেটের তথ্য এখনো সংযুক্ত করা হয়নি।'; ?>
+					<?php echo $has_data ? 'এলাকার ধরন, মৌজা ও জমির শ্রেণি নির্বাচন করলে এখানে তথ্য দেখা যাবে।' : 'মৌজা রেটের তথ্য এখনো সংযুক্ত করা হয়নি।'; ?>
 				</p>
 				<div id="mz-output" hidden>
 					<p class="result-big" id="mz-big"></p>
+					<p class="result-flag" id="mz-flag" hidden></p>
 					<dl class="result-dl" id="mz-dl"></dl>
 				</div>
 			</section>
