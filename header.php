@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<?php if ( has_custom_logo() ) : ?>
 				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'full', false, array( 'alt' => get_bloginfo( 'name' ), 'class' => 'brand-logo' ) ); ?>
 			<?php else : ?>
-				<img class="brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.png' ); ?>" width="520" height="392" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+				<img class="brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo-horizontal.png' ); ?>" width="772" height="214" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 			<?php endif; ?>
 		</a>
 
