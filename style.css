@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.6.0
+Version: 1.7.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -295,16 +295,29 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .faq-item[open] summary::after { content: "\2212"; }
 .faq-item p { margin: 0; padding: 14px 16px 16px; background: #fff; color: var(--c-text); border: 1px solid var(--c-primary); border-top: 0; border-radius: 0 0 10px 10px; }
 
+/* Contact info list */
+.info-dl { margin: 0; }
+.info-dl > div { display: grid; grid-template-columns: 9.5em 1fr; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--c-border); }
+.info-dl > div:last-child { border-bottom: 0; }
+.info-dl dt { color: var(--c-muted); font-size: .92rem; }
+.info-dl dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .info-dl > div { grid-template-columns: 1fr; } }
+
 /* ---------- Footer ---------- */
-.site-footer { background: #e3efe7; color: var(--c-text); padding-block: 32px 20px; margin-top: 0; border-top: 4px solid var(--c-primary); font-size: .97rem; }
+.site-footer { background: #e3efe7; color: var(--c-text); padding-block: 36px 18px; margin-top: 0; border-top: 4px solid var(--c-primary); font-size: .97rem; }
 .site-footer a { color: var(--c-primary-dark); }
-.footer-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
-@media (min-width: 768px) { .footer-grid { grid-template-columns: 1.2fr 1fr 1fr; } }
-.footer-h { font-size: 1.05rem; margin: 0 0 10px; color: var(--c-primary-dark); }
+.footer-grid { display: grid; gap: 28px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; gap: 36px; } }
+.footer-brand img { display: block; width: 220px; max-width: 100%; height: auto; background: #fff; padding: 8px 12px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.footer-office { font-weight: 700; color: var(--c-primary-dark); margin: 0 0 6px; font-size: 1.05rem; line-height: 1.5; }
+.footer-address { margin: 0 0 6px; }
+.footer-address-en { margin: 0; color: var(--c-muted); font-size: .9rem; }
+.footer-h { font-size: 1.05rem; margin: 0 0 12px; color: var(--c-primary-dark); padding-bottom: 8px; border-bottom: 2px solid #b9d0c1; display: inline-block; }
 .footer-links, .footer-info { list-style: none; margin: 0; padding: 0; }
-.footer-links li, .footer-info li { padding: 4px 0; overflow-wrap: anywhere; }
+.footer-links li, .footer-info li { padding: 5px 0; overflow-wrap: anywhere; }
 .footer-links a { text-decoration: none; }
+.footer-links a::before { content: "\203A"; margin-right: 8px; color: var(--c-primary); font-weight: 700; }
 .footer-links a:hover { text-decoration: underline; }
 .footer-note { margin: 0; color: var(--c-muted); font-size: .9rem; }
-.footer-social { justify-content: flex-start; }
-.copyright { margin: 24px 0 0; padding-top: 14px; border-top: 1px solid #b9d0c1; font-size: .88rem; text-align: center; color: var(--c-muted); }
+.footer-social { justify-content: flex-start; margin-top: 14px; }
+.copyright { margin: 28px 0 0; padding-top: 14px; border-top: 1px solid #b9d0c1; font-size: .88rem; text-align: center; color: var(--c-muted); }

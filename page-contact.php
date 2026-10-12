@@ -10,6 +10,7 @@ $phone   = sro_opt( 'office_phone' );
 $email   = sro_opt( 'office_email' );
 $address = sro_opt( 'office_address' );
 $hours   = sro_opt( 'office_hours' );
+$info    = sro_office_info();
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $sent  = isset( $_GET['sent'] );
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -22,17 +23,22 @@ $error = isset( $_GET['error'] ) ? sanitize_key( wp_unslash( $_GET['error'] ) ) 
 		<div class="contact-grid">
 			<section class="entry" aria-labelledby="info-h">
 				<h2 id="info-h">অফিসের তথ্য</h2>
-				<ul class="info-list">
-					<?php if ( $address ) : ?><li><strong>ঠিকানা:</strong> <?php echo esc_html( $address ); ?></li><?php endif; ?>
-					<?php if ( $phone ) : ?><li><strong>ফোন:</strong> <a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a></li><?php endif; ?>
-					<?php if ( $email ) : ?><li><strong>ইমেইল:</strong> <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></li><?php endif; ?>
-					<?php if ( $hours ) : ?><li><strong>অফিস সময়:</strong> <?php echo esc_html( $hours ); ?></li><?php endif; ?>
-					<?php if ( ! $address && ! $phone && ! $email && ! $hours ) : ?>
-						<li>অফিসের তথ্য যোগ করতে Appearance → Customize → "অফিসের তথ্য" এ যান।</li>
-					<?php endif; ?>
-				</ul>
+				<dl class="info-dl">
+					<div><dt>অফিসের নাম</dt><dd><?php echo esc_html( $info['name'] ); ?></dd></div>
+					<div><dt>উপজেলা</dt><dd><?php echo esc_html( $info['upazila'] ); ?></dd></div>
+					<div><dt>জেলা</dt><dd><?php echo esc_html( $info['district'] ); ?></dd></div>
+					<div><dt>বিভাগ</dt><dd><?php echo esc_html( $info['division'] ); ?></dd></div>
+					<div><dt>দেশ</dt><dd><?php echo esc_html( $info['country'] ); ?></dd></div>
+					<?php if ( $address ) : ?><div><dt>বিস্তারিত ঠিকানা</dt><dd><?php echo esc_html( $address ); ?></dd></div><?php endif; ?>
+					<div><dt>Office Address (English)</dt><dd lang="en"><?php echo esc_html( $info['address_en'] ); ?></dd></div>
+					<?php if ( $phone ) : ?><div><dt>ফোন</dt><dd><a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a></dd></div><?php endif; ?>
+					<?php if ( $email ) : ?><div><dt>ইমেইল</dt><dd><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></dd></div><?php endif; ?>
+					<?php if ( $hours ) : ?><div><dt>অফিস সময়</dt><dd><?php echo esc_html( $hours ); ?></dd></div><?php endif; ?>
+				</dl>
 				<?php if ( $phone ) : ?>
 					<p style="margin-top:16px;"><a class="btn btn-block" href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>">এখনই কল করুন</a></p>
+				<?php elseif ( current_user_can( 'manage_options' ) ) : ?>
+					<p class="footer-note">(শুধু অ্যাডমিন দেখছেন) ফোন, ইমেইল ও অফিস সময় যোগ করতে Appearance → Customize → "অফিসের তথ্য" এ যান।</p>
 				<?php endif; ?>
 			</section>
 

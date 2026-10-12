@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.6.0' );
+define( 'SRO_VERSION', '1.7.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -326,4 +326,18 @@ function sro_render_social( $post_id ) {
 		}
 	}
 	echo '</ul>';
+}
+
+/**
+ * Fixed office identity (shown on the contact page and in the footer).
+ */
+function sro_office_info() {
+	return array(
+		'name'       => 'সাব-রেজিস্ট্রারের কার্যালয়, রামগঞ্জ',
+		'upazila'    => 'রামগঞ্জ',
+		'district'   => 'লক্ষ্মীপুর',
+		'division'   => 'চট্টগ্রাম',
+		'country'    => 'বাংলাদেশ',
+		'address_en' => 'Sub-Registrar Office, Ramganj, Lakshmipur, Chattogram, Bangladesh.',
+	);
 }
