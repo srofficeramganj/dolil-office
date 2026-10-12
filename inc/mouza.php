@@ -262,7 +262,17 @@ function sro_mouza_page() {
 			</table>
 		<?php endif; ?>
 
-		<h2 style="margin-top:28px;">মৌজা রেটের তথ্য ইমপোর্ট</h2>
+		<h2 style="margin-top:28px;">ধাপে ধাপে ইমপোর্ট (সুপারিশকৃত)</h2>
+		<div id="sro-batch-import" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'sro_mouza_import_batch' ) ); ?>" style="max-width:640px;padding:14px;border:1px solid #c3c4c7;background:#fff;">
+			<p>CSV ফাইল বেছে নিন। ব্রাউজার ফাইলটি ছোট ছোট ভাগে পাঠাবে এবং অগ্রগতি দেখাবে, তাই সার্ভারে আটকে যাবে না।</p>
+			<p><input type="file" id="sro-batch-file" accept=".csv,text/csv"></p>
+			<p><label><input type="checkbox" id="sro-batch-replace"> শুরুতে আগের সব মৌজা রেট মুছে ফেলুন (একাধিক ছোট ফাইল দিলে শুধু প্রথমটিতে টিক দিন)</label></p>
+			<div style="height:14px;background:#e3e3e3;border-radius:7px;overflow:hidden;"><div id="sro-batch-bar" style="height:100%;width:0;background:#0b5d3b;transition:width .2s;"></div></div>
+			<p id="sro-batch-status" role="status" style="margin-top:8px;"></p>
+			<p><button type="button" class="button button-primary" id="sro-batch-start">ইমপোর্ট শুরু করুন</button></p>
+		</div>
+
+		<h2 style="margin-top:28px;">সাধারণ ইমপোর্ট (একসাথে আপলোড)</h2>
 		<p>ফাইলের প্রথম সারিতে কলামের নাম থাকতে হবে (CSV বা JSON; Excel থেকে "CSV UTF-8" হিসেবে সেভ করুন):</p>
 		<p><code>district, upazila, area_type, mouza_name, mouza_code, land_category, rate, rate_unit, effective_period, carried, dag_note, source_reference, page_ref, last_verified, verified</code></p>
 		<ul style="list-style:disc;margin-left:20px;">
@@ -417,3 +427,93 @@ function sro_mouza_rest_routes() {
 	);
 }
 add_action( 'rest_api_init', 'sro_mouza_rest_routes' );
+
+/* --------------------------------------------------------------------
+ * Step-by-step import (browser sends small batches; avoids server timeouts)
+ * ------------------------------------------------------------------ */
+
+/**
+ * Insert one rate row from an associative array. Returns true on success.
+ */
+function sro_mouza_insert_row( $row ) {
+	global $wpdb;
+	if ( ! is_array( $row ) ) {
+		return false;
+	}
+	$row  = array_change_key_case( $row, CASE_LOWER );
+	$get  = function ( $k ) use ( $row ) {
+		return isset( $row[ $k ] ) ? trim( (string) $row[ $k ] ) : '';
+	};
+	$rate = sro_mouza_digits( str_replace( ',', '', $get( 'rate' ) ) );
+	if ( '' === $get( 'district' ) || '' === $get( 'upazila' ) || '' === $get( 'mouza_name' ) || '' === $get( 'land_category' ) || ! is_numeric( $rate ) || '' === $get( 'rate_unit' ) ) {
+		return false;
+	}
+	$carried  = in_array( strtolower( $get( 'carried' ) ), array( '1', 'yes', 'true', '*', 'হ্যাঁ' ), true ) ? 1 : 0;
+	$verified = in_array( strtolower( $get( 'verified' ) ), array( '1', 'yes', 'true', 'হ্যাঁ' ), true ) ? 1 : 0;
+	$ok       = $wpdb->insert(
+		sro_mouza_table(),
+		array(
+			'district'         => sanitize_text_field( $get( 'district' ) ),
+			'upazila'          => sanitize_text_field( $get( 'upazila' ) ),
+			'area_type'        => sanitize_text_field( $get( 'area_type' ) ),
+			'mouza_name'       => sanitize_text_field( $get( 'mouza_name' ) ),
+			'mouza_code'       => sanitize_text_field( $get( 'mouza_code' ) ),
+			'land_category'    => sanitize_text_field( $get( 'land_category' ) ),
+			'rate'             => (float) $rate,
+			'rate_unit'        => sanitize_text_field( $get( 'rate_unit' ) ),
+			'effective_period' => sanitize_text_field( $get( 'effective_period' ) ),
+			'carried'          => $carried,
+			'dag_note'         => sanitize_textarea_field( $get( 'dag_note' ) ),
+			'source_ref'       => sanitize_textarea_field( $get( 'source_reference' ) ? $get( 'source_reference' ) : $get( 'source_ref' ) ),
+			'page_ref'         => sanitize_text_field( $get( 'page_ref' ) ),
+			'last_verified'    => sanitize_text_field( $get( 'last_verified' ) ),
+			'verified'         => $verified,
+		)
+	);
+	return false !== $ok;
+}
+
+function sro_mouza_ajax_import_batch() {
+	check_ajax_referer( 'sro_mouza_import_batch', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'অনুমতি নেই।' ), 403 );
+	}
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing
+	$rows = isset( $_POST['rows'] ) ? json_decode( wp_unslash( (string) $_POST['rows'] ), true ) : null;
+	if ( ! is_array( $rows ) ) {
+		wp_send_json_error( array( 'message' => 'তথ্য পড়া যায়নি।' ) );
+	}
+	if ( count( $rows ) > 200 ) {
+		wp_send_json_error( array( 'message' => 'একসাথে অনেক সারি।' ) );
+	}
+	if ( ! empty( $_POST['replace'] ) && '1' === $_POST['replace'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		global $wpdb;
+		$table = sro_mouza_table();
+		$wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+	$added   = 0;
+	$skipped = 0;
+	foreach ( $rows as $row ) {
+		if ( sro_mouza_insert_row( $row ) ) {
+			$added++;
+		} else {
+			$skipped++;
+		}
+	}
+	wp_send_json_success(
+		array(
+			'added'   => $added,
+			'skipped' => $skipped,
+		)
+	);
+}
+add_action( 'wp_ajax_sro_mouza_import_batch', 'sro_mouza_ajax_import_batch' );
+
+function sro_mouza_import_assets() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! isset( $_GET['page'] ) || 'sro-mouza-import' !== $_GET['page'] ) {
+		return;
+	}
+	wp_enqueue_script( 'sro-mouza-import', get_template_directory_uri() . '/assets/js/mouza-import.js', array(), SRO_VERSION, true );
+}
+add_action( 'admin_enqueue_scripts', 'sro_mouza_import_assets' );
