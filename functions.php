@@ -7,11 +7,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.2.2' );
+define( 'SRO_VERSION', '1.3.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
 require_once get_template_directory() . '/inc/updater.php';
+require_once get_template_directory() . '/inc/importer.php';
 
 /**
  * Theme setup.

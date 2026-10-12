@@ -77,6 +77,7 @@ function sro_directory_metabox_html( $post ) {
 		'_sro_cert'    => array( 'সনদ নম্বর', 'text' ),
 		'_sro_mobile'  => array( 'মোবাইল নম্বর', 'tel' ),
 		'_sro_address' => array( 'ঠিকানা', 'text' ),
+		'_sro_social'  => array( 'সোশ্যাল মিডিয়া লিংক (ফেসবুক/হোয়াটসঅ্যাপ ইত্যাদি)', 'url' ),
 	);
 	foreach ( $fields as $key => $def ) {
 		printf(
@@ -104,6 +105,9 @@ function sro_directory_save( $post_id ) {
 		if ( isset( $_POST[ $key ] ) ) {
 			update_post_meta( $post_id, $key, sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) );
 		}
+	}
+	if ( isset( $_POST['_sro_social'] ) ) {
+		update_post_meta( $post_id, '_sro_social', esc_url_raw( wp_unslash( $_POST['_sro_social'] ) ) );
 	}
 }
 add_action( 'save_post_deed_writer', 'sro_directory_save' );
