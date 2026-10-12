@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.13.2' );
+define( 'SRO_VERSION', '1.14.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
@@ -91,6 +91,7 @@ function sro_customize_register( $wp_customize ) {
 		'office_facebook' => 'ফেসবুক পেজের লিংক',
 		'office_youtube'  => 'ইউটিউব চ্যানেলের লিংক',
 		'office_notices'  => 'ঘোষণা (হোম পেজে চলমান লেখা, প্রতি লাইনে একটি)',
+		'office_map'      => 'গুগল ম্যাপ লিংক বা embed কোড (ঐচ্ছিক)',
 		'committee_title' => 'সমিতির নাম (আমাদের সম্পর্কে পেজে)',
 		'committee_sub'   => 'কমিটির উপশিরোনাম (যেমন: ত্রি-বার্ষিক কার্যকরী পরিষদ ২০২৬ খ্রি.)',
 	);
@@ -348,4 +349,36 @@ function sro_office_info() {
 		'country'    => 'বাংলাদেশ',
 		'address_en' => 'Sub-Registrar Office, Ramganj, Lakshmipur, Chattogram, Bangladesh.',
 	);
+}
+
+/**
+ * Google Maps URLs for the office: an embeddable one and a "directions" link.
+ *
+ * The Customizer field may hold a Google Maps link or a full "Embed a map"
+ * iframe code. Without it, the office address is used as the search query.
+ *
+ * @return array{embed:string,link:string}
+ */
+function sro_map_urls() {
+	$info  = sro_office_info();
+	$query = $info['address_en'];
+	$raw   = trim( (string) get_theme_mod( 'office_map', '' ) );
+
+	$out = array(
+		'embed' => 'https://maps.google.com/maps?q=' . rawurlencode( $query ) . '&hl=bn&z=15&output=embed',
+		'link'  => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode( $query ),
+	);
+	if ( '' === $raw ) {
+		return $out;
+	}
+	// Pasted <iframe src="https://www.google.com/maps/embed?...">.
+	if ( preg_match( '/src=["\']([^"\']+)["\']/i', $raw, $m ) && 0 === strpos( $m[1], 'https://www.google.com/maps/embed' ) ) {
+		$out['embed'] = $m[1];
+		return $out;
+	}
+	// Pasted a normal Google Maps link.
+	if ( preg_match( '#^https://(www\.)?(google\.com/maps|maps\.google\.com|maps\.app\.goo\.gl|goo\.gl/maps)#i', $raw ) ) {
+		$out['link'] = esc_url_raw( $raw );
+	}
+	return $out;
 }

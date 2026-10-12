@@ -81,6 +81,15 @@ $error = isset( $_GET['error'] ) ? sanitize_key( wp_unslash( $_GET['error'] ) ) 
 			</section>
 		</div>
 
+		<?php $map = sro_map_urls(); ?>
+		<section class="entry contact-map" aria-labelledby="map-h" style="margin-top:24px;">
+			<h2 id="map-h">অফিসের অবস্থান</h2>
+			<div class="footer-map">
+				<iframe title="অফিসের অবস্থান (Google Maps)" src="<?php echo esc_url( $map['embed'] ); ?>" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+			</div>
+			<p style="margin-top:12px;"><a class="btn" href="<?php echo esc_url( $map['link'] ); ?>" target="_blank" rel="noopener noreferrer">দিক নির্দেশনা পান (Google Maps)</a></p>
+		</section>
+
 		<?php
 		while ( have_posts() ) :
 			the_post();

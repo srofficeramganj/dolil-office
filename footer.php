@@ -1,6 +1,6 @@
 <?php
 /**
- * Site footer: office identity, useful links, contact and social links.
+ * Site footer: office identity, useful links, contact details, social links and map.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,6 +12,7 @@ $address  = sro_opt( 'office_address' );
 $hours    = sro_opt( 'office_hours' );
 $archive  = get_post_type_archive_link( 'deed_writer' );
 $archive  = $archive ? $archive : home_url( '/deed-writers/' );
+$map      = sro_map_urls();
 $social   = array();
 $networks = array(
 	'whatsapp' => array( 'হোয়াটসঅ্যাপ', 'office_whatsapp' ),
@@ -25,6 +26,15 @@ foreach ( $networks as $key => $def ) {
 		$social[] = array( $key, $def[0], $url, $paths[ $key ] );
 	}
 }
+$icons = array(
+	'phone' => 'M6 3h3l2 5-2 1.5a11 11 0 0 0 5.5 5.5L16 13l5 2v3a3 3 0 0 1-3 3A15 15 0 0 1 3 6a3 3 0 0 1 3-3z',
+	'mail'  => 'M3 6h18v12H3zM3 7l9 7 9-7',
+	'clock' => 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
+	'pin'   => 'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+);
+$icon = function ( $name ) use ( $icons ) {
+	return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' . esc_attr( $icons[ $name ] ) . '"/></svg>';
+};
 ?>
 </main>
 
@@ -59,11 +69,39 @@ foreach ( $networks as $key => $def ) {
 
 			<div>
 				<h2 class="footer-h">যোগাযোগ</h2>
-				<ul class="footer-info">
-					<?php if ( $phone ) : ?><li>ফোন: <a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a></li><?php endif; ?>
-					<?php if ( $email ) : ?><li>ইমেইল: <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></li><?php endif; ?>
-					<?php if ( $hours ) : ?><li>অফিস সময়: <?php echo esc_html( $hours ); ?></li><?php endif; ?>
-					<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">বার্তা পাঠান</a></li>
+				<ul class="contact-list">
+					<li>
+						<span class="ci"><?php echo $icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<span>
+							<small>অফিস মোবাইল</small>
+							<?php if ( $phone ) : ?>
+								<a href="tel:<?php echo esc_attr( sro_tel( $phone ) ); ?>"><?php echo esc_html( $phone ); ?></a>
+							<?php else : ?>
+								<em>শীঘ্রই যোগ করা হবে</em>
+							<?php endif; ?>
+						</span>
+					</li>
+					<li>
+						<span class="ci"><?php echo $icon( 'mail' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<span>
+							<small>ইমেইল</small>
+							<?php if ( $email ) : ?>
+								<a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a>
+							<?php else : ?>
+								<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">বার্তা পাঠান</a>
+							<?php endif; ?>
+						</span>
+					</li>
+					<?php if ( $hours ) : ?>
+						<li>
+							<span class="ci"><?php echo $icon( 'clock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<span><small>অফিস সময়</small><?php echo esc_html( $hours ); ?></span>
+						</li>
+					<?php endif; ?>
+					<li>
+						<span class="ci"><?php echo $icon( 'pin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+						<span><small>অবস্থান</small><a href="<?php echo esc_url( $map['link'] ); ?>" target="_blank" rel="noopener noreferrer">Google Maps-এ দেখুন</a></span>
+					</li>
 				</ul>
 				<?php if ( $social ) : ?>
 					<ul class="dw-social footer-social" aria-label="সামাজিক যোগাযোগ">
@@ -78,6 +116,17 @@ foreach ( $networks as $key => $def ) {
 				<?php endif; ?>
 			</div>
 		</div>
+
+		<div class="footer-map">
+			<iframe
+				title="<?php echo esc_attr( $info['name'] ); ?> এর অবস্থান (Google Maps)"
+				src="<?php echo esc_url( $map['embed'] ); ?>"
+				loading="lazy"
+				referrerpolicy="no-referrer-when-downgrade"
+				allowfullscreen></iframe>
+			<a class="btn footer-map-btn" href="<?php echo esc_url( $map['link'] ); ?>" target="_blank" rel="noopener noreferrer">দিক নির্দেশনা পান (Google Maps)</a>
+		</div>
+
 		<p class="copyright">&copy; <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( $info['name'] ); ?>। সর্বস্বত্ব সংরক্ষিত।</p>
 	</div>
 </footer>
