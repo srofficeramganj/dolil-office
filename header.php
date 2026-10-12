@@ -20,16 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="container header-inner">
 		<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 			<?php if ( has_custom_logo() ) : ?>
-				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'full', false, array( 'alt' => get_bloginfo( 'name' ) ) ); ?>
+				<?php echo wp_get_attachment_image( get_theme_mod( 'custom_logo' ), 'full', false, array( 'alt' => get_bloginfo( 'name' ), 'class' => 'brand-logo' ) ); ?>
 			<?php else : ?>
-				<img class="brand-icon" src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/icon-192.png' ); ?>" width="44" height="44" alt="">
+				<img class="brand-logo" src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.png' ); ?>" width="520" height="392" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 			<?php endif; ?>
-			<span class="brand-text">
-				<?php bloginfo( 'name' ); ?>
-				<?php if ( get_bloginfo( 'description' ) ) : ?>
-					<small><?php bloginfo( 'description' ); ?></small>
-				<?php endif; ?>
-			</span>
 		</a>
 
 		<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
