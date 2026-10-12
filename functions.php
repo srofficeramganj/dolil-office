@@ -35,15 +35,23 @@ function sro_setup() {
 add_action( 'after_setup_theme', 'sro_setup' );
 
 /**
+ * Cache-busting version: file modified time, so every deploy refreshes browsers.
+ */
+function sro_asset_version( $relative ) {
+	$path = get_template_directory() . '/' . $relative;
+	return file_exists( $path ) ? (string) filemtime( $path ) : SRO_VERSION;
+}
+
+/**
  * Assets: one stylesheet, one deferred script, no libraries.
  */
 function sro_assets() {
-	wp_enqueue_style( 'sro-style', get_stylesheet_uri(), array(), SRO_VERSION );
+	wp_enqueue_style( 'sro-style', get_stylesheet_uri(), array(), sro_asset_version( 'style.css' ) );
 	wp_enqueue_script(
 		'sro-main',
 		get_template_directory_uri() . '/assets/js/main.js',
 		array(),
-		SRO_VERSION,
+		sro_asset_version( 'assets/js/main.js' ),
 		array(
 			'in_footer' => true,
 			'strategy'  => 'defer',
