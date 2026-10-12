@@ -73,12 +73,14 @@ function sro_mouza_digits( $value ) {
  * ------------------------------------------------------------------ */
 
 function sro_mouza_menu() {
-	add_menu_page( 'মৌজা রেট', 'মৌজা রেট', 'manage_options', 'sro-mouza', 'sro_mouza_page', 'dashicons-location-alt', 7 );
+	add_menu_page( 'মৌজা রেট', 'মৌজা রেট', 'manage_options', 'sro-mouza', 'sro_mouza_list_page', 'dashicons-location-alt', 7 );
+	add_submenu_page( 'sro-mouza', 'সব রেট (সংশোধন)', 'সব রেট (সংশোধন)', 'manage_options', 'sro-mouza', 'sro_mouza_list_page' );
+	add_submenu_page( 'sro-mouza', 'ইমপোর্ট', 'ইমপোর্ট', 'manage_options', 'sro-mouza-import', 'sro_mouza_page' );
 }
 add_action( 'admin_menu', 'sro_mouza_menu' );
 
 function sro_mouza_back( $args = array() ) {
-	wp_safe_redirect( add_query_arg( array_merge( array( 'page' => 'sro-mouza' ), $args ), admin_url( 'admin.php' ) ) );
+	wp_safe_redirect( add_query_arg( array_merge( array( 'page' => 'sro-mouza-import' ), $args ), admin_url( 'admin.php' ) ) );
 	exit;
 }
 
@@ -206,7 +208,8 @@ function sro_mouza_page() {
 	$summary = $count ? $wpdb->get_results( "SELECT district, upazila, COUNT(DISTINCT CONCAT_WS('|', mouza_name, mouza_code)) AS mouzas, COUNT(*) AS rows_count FROM {$table} GROUP BY district, upazila ORDER BY district, upazila" ) : array(); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	?>
 	<div class="wrap">
-		<h1>মৌজা রেট</h1>
+		<h1>মৌজা রেট ইমপোর্ট</h1>
+		<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=sro-mouza' ) ); ?>">&larr; সব রেট দেখুন ও সংশোধন করুন</a></p>
 
 		<?php if ( $err && isset( $errors[ $err ] ) ) : ?>
 			<div class="notice notice-error"><p><?php echo esc_html( $errors[ $err ] ); ?></p></div>
