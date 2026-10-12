@@ -7,13 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SRO_VERSION', '1.8.0' );
+define( 'SRO_VERSION', '1.9.0' );
 
 require_once get_template_directory() . '/inc/directory.php';
 require_once get_template_directory() . '/inc/contact.php';
 require_once get_template_directory() . '/inc/updater.php';
 require_once get_template_directory() . '/inc/importer.php';
 require_once get_template_directory() . '/inc/notices.php';
+require_once get_template_directory() . '/inc/services.php';
+require_once get_template_directory() . '/inc/mouza.php';
 
 /**
  * Theme setup.
