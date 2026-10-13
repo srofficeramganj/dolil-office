@@ -59,6 +59,14 @@ function sro_icon_markup( $name ) {
 		'copy'            => '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
 		'printer'         => '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
 		'arrow-left-right' => '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+		'landmark'        => '<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+		'file-search'     => '<path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4.268 21a2 2 0 0 0 1.727 1H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v3"/><circle cx="5" cy="14" r="3"/><path d="m7 16 1.5 1.5"/>',
+		'file-pen-line'   => '<path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12"/><path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><path d="M8 18h1"/>',
+		'receipt'         => '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+		'map'             => '<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>',
+		'folder-down'     => '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="m9 13 3 3 3-3"/>',
+		'book-open'       => '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+		'external-link'   => '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
 		'map-pinned'      => '<path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0"/><circle cx="12" cy="8" r="2"/><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712"/>',
 	);
 	return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
@@ -124,6 +132,16 @@ function sro_is_service_page() {
  */
 function sro_services_assets() {
 	if ( is_page( 'services' ) ) {
+		wp_enqueue_script(
+			'sro-gov-shortcuts',
+			get_template_directory_uri() . '/assets/js/gov-shortcuts.js',
+			array(),
+			sro_asset_version( 'assets/js/gov-shortcuts.js' ),
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
 		wp_enqueue_script(
 			'sro-smart-calc-core',
 			get_template_directory_uri() . '/assets/js/smart-calc-core.js',
@@ -252,6 +270,63 @@ function sro_registration_documents() {
 				'label' => 'অন্যান্য দলিল',
 				'extra' => array( 'দলিলের ধরন অনুযায়ী অতিরিক্ত কাগজপত্র (সাব-রেজিস্ট্রার অফিস থেকে জেনে নিন)' ),
 			),
+		),
+	);
+}
+
+/**
+ * Government land service shortcuts (all verified official sites, HTTP 200 on
+ * 2026-10-13). They open the official website in a new tab; nothing is stored.
+ */
+function sro_gov_shortcuts() {
+	return array(
+		array(
+			'title'  => 'খতিয়ান অনুসন্ধান',
+			'icon'   => 'file-search',
+			'url'    => 'https://dlrms.land.gov.bd/',
+			'domain' => 'dlrms.land.gov.bd',
+			'btn'    => 'খতিয়ান সেবায় যান',
+			'note'   => 'ভূমি তথ্য বাতায়নের "ভূমি রেকর্ড ও ম্যাপ" সেবার অফিসিয়াল প্রবেশ পথ (DLRMS)।',
+		),
+		array(
+			'title'  => 'ই-নামজারি',
+			'icon'   => 'file-pen-line',
+			'url'    => 'https://mutation.land.gov.bd/',
+			'domain' => 'mutation.land.gov.bd',
+			'btn'    => 'ই-নামজারি সেবায় যান',
+			'note'   => 'ভূমি মন্ত্রণালয়ের মিউটেশন (নামজারি) সিস্টেম।',
+		),
+		array(
+			'title'  => 'ভূমি উন্নয়ন কর',
+			'icon'   => 'receipt',
+			'url'    => 'https://ldtax.gov.bd/',
+			'domain' => 'ldtax.gov.bd',
+			'btn'    => 'ভূমি কর সেবায় যান',
+			'note'   => 'অনলাইনে ভূমি উন্নয়ন কর সংক্রান্ত সেবা।',
+		),
+		array(
+			'title'  => 'মৌজা ম্যাপ ও ভূমি রেকর্ড',
+			'icon'   => 'map',
+			'url'    => 'https://map.land.gov.bd/',
+			'domain' => 'map.land.gov.bd',
+			'btn'    => 'ম্যাপ ও রেকর্ড সেবায় যান',
+			'note'   => '"ভূমি নকশা" (জমির মানচিত্র) পোর্টাল। সব উপজেলার মানচিত্র সেখানে না-ও থাকতে পারে।',
+		),
+		array(
+			'title'  => 'সরকারি ভূমি ফরম',
+			'icon'   => 'folder-down',
+			'url'    => 'https://ldtax.gov.bd/vumiseba-form',
+			'domain' => 'ldtax.gov.bd',
+			'btn'    => 'ফরমসমূহ দেখুন',
+			'note'   => 'লীজ, নামজারিসহ বিভিন্ন ফরম PDF আকারে ডাউনলোড করা যায়।',
+		),
+		array(
+			'title'  => 'ভূমি আইন ও বিধিমালা',
+			'icon'   => 'book-open',
+			'url'    => 'https://ldtax.gov.bd/ain-and-bidhi',
+			'domain' => 'ldtax.gov.bd',
+			'btn'    => 'আইন ও বিধিমালা দেখুন',
+			'note'   => 'ভূমি সংক্রান্ত আইন ও বিধিমালার তালিকা।',
 		),
 	);
 }

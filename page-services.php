@@ -99,7 +99,41 @@ $result = function () {
 				<p>জমির পরিমাপ, অংশ অনুযায়ী জমির হিসাব, শতকরা হিসাব ও জমির মূল্য নির্ণয় করুন সহজেই।</p>
 				<button type="button" class="btn" id="smart-calc-open" aria-expanded="false" aria-controls="smart-calc"><span class="sc-open-label">ক্যালকুলেটর ব্যবহার করুন →</span></button>
 			</article>
+
+			<article class="service-card" style="--accent:#006838">
+				<span class="service-card-icon"><?php sro_icon( 'landmark', 40 ); ?></span>
+				<h2>সরকারি ভূমি সেবার শর্টকাট</h2>
+				<p>খতিয়ান, ই-নামজারি, ভূমি উন্নয়ন কর, মৌজা ম্যাপ ও অন্যান্য সরকারি ভূমি সেবায় সহজেই প্রবেশ করুন।</p>
+				<button type="button" class="btn" id="gov-open" aria-expanded="false" aria-controls="gov-shortcuts"><span class="gov-open-label">সরকারি সেবাসমূহ দেখুন →</span></button>
+			</article>
 		</div>
+
+
+		<section id="gov-shortcuts" class="gov-shortcuts" aria-labelledby="gov-h" hidden>
+			<div class="sc-head">
+				<h2 id="gov-h"><?php sro_icon( 'landmark', 26 ); ?> সরকারি ভূমি সেবার শর্টকাট</h2>
+				<button type="button" class="btn btn-outline" id="gov-close">বন্ধ করুন</button>
+			</div>
+			<p class="gov-leave"><?php sro_icon( 'external-link', 18 ); ?> নিচের যেকোনো বাটনে ক্লিক করলে আপনি <strong>SR-Office Ramganj ওয়েবসাইট ছেড়ে সরকারি ওয়েবসাইটে</strong> যাবেন (নতুন ট্যাবে খুলবে)।</p>
+
+			<div class="gov-grid">
+				<?php foreach ( sro_gov_shortcuts() as $g ) : ?>
+					<article class="gov-card">
+						<span class="gov-icon"><?php sro_icon( $g['icon'], 30 ); ?></span>
+						<h3><?php echo esc_html( $g['title'] ); ?></h3>
+						<p class="gov-note"><?php echo esc_html( $g['note'] ); ?></p>
+						<p class="gov-domain"><?php sro_icon( 'external-link', 14 ); ?> <span>সরকারি ওয়েবসাইট: <?php echo esc_html( $g['domain'] ); ?></span></p>
+						<a class="btn gov-btn" href="<?php echo esc_url( $g['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<span><?php echo esc_html( $g['btn'] ); ?></span> <?php sro_icon( 'external-link', 18 ); ?>
+							<span class="screen-reader-text">(নতুন ট্যাবে সরকারি ওয়েবসাইট খুলবে)</span>
+						</a>
+					</article>
+				<?php endforeach; ?>
+			</div>
+
+			<p class="sc-disclaimer">এখানে সরকারি ভূমি সেবার ওয়েবসাইটগুলোর লিংক প্রদান করা হয়েছে। সংশ্লিষ্ট সেবাগুলো সরকারি কর্তৃপক্ষের নিজস্ব ওয়েবসাইটে পরিচালিত হয়।</p>
+			<p class="gov-small">এই ওয়েবসাইটে কোনো লগইন তথ্য, এনআইডি বা সরকারি পোর্টালের পাসওয়ার্ড সংগ্রহ বা সংরক্ষণ করা হয় না। লিংকগুলো ১৩ অক্টোবর ২০২৬ তারিখে যাচাই করা হয়েছে।</p>
+		</section>
 
 		<section id="smart-calc" class="smart-calc" aria-labelledby="smart-calc-h" hidden>
 			<div class="sc-head">

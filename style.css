@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.15.0
+Version: 1.16.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -604,3 +604,28 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 	body.print-smart .sc-tool[hidden] { display: none !important; }
 	body.print-smart .sc-result { border: 1px solid #999; break-inside: avoid; }
 }
+
+/* ---------- Government land service shortcuts (inline on /services/) ---------- */
+.gov-shortcuts { margin-top: 28px; background: #fff; border: 1px solid var(--c-border); border-top: 6px solid #006838; border-radius: 16px; box-shadow: var(--shadow); padding: 18px; scroll-margin-top: 16px; }
+@media (min-width: 768px) { .gov-shortcuts { padding: 28px; } }
+.gov-shortcuts[hidden] { display: none; }
+.gov-shortcuts .sc-head h2 svg { color: #006838; }
+.gov-leave { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 18px; padding: 12px 14px; border-radius: 12px; background: #fff8e6; border: 1px solid #f1d38a; color: #5c4400; }
+.gov-leave svg { flex: none; margin-top: 4px; color: #E60012; }
+.gov-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 640px) { .gov-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .gov-grid { grid-template-columns: repeat(3, 1fr); } }
+.gov-card {
+	display: flex; flex-direction: column; gap: 8px; background: #fff; border: 2px solid #b9d9c8; border-radius: 16px;
+	padding: 18px; box-shadow: var(--shadow); min-width: 0; transition: border-color .15s ease, transform .15s ease;
+}
+.gov-card:hover { border-color: #006838; transform: translateY(-2px); }
+.gov-icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 14px; background: #eaf4ee; color: #006838; }
+.gov-card h3 { margin: 4px 0 0; font-size: 1.15rem; color: #004D2B; }
+.gov-note { margin: 0; color: var(--c-muted); flex: 1; font-size: .95rem; }
+.gov-domain { display: flex; gap: 6px; align-items: center; margin: 0; font-size: .85rem; color: #4b5563; overflow-wrap: anywhere; }
+.gov-domain svg { flex: none; color: #E60012; }
+.gov-btn { width: 100%; background: #006838; border-color: #006838; gap: 8px; }
+.gov-btn:hover { background: #004D2B; border-color: #004D2B; }
+.gov-small { margin: 10px 0 0; color: var(--c-muted); font-size: .85rem; }
+@media print { .gov-shortcuts { display: none !important; } }
