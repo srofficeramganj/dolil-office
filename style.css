@@ -3,7 +3,7 @@ Theme Name: SR Office Ramganj
 Theme URI: https://sr-office-ramganj.com/
 Author: SR Office Ramganj
 Description: রামগঞ্জ সাব-রেজিস্ট্রি অফিসের জন্য মোবাইল-ফার্স্ট, হালকা ও দ্রুত ওয়ার্ডপ্রেস থিম। দলিল লেখক ডিরেক্টরি সহ।
-Version: 1.14.4
+Version: 1.15.0
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPL-2.0-or-later
@@ -530,3 +530,77 @@ input:focus, select:focus, textarea:focus { border-color: var(--c-focus); outlin
 .footer-links { columns: 2; column-gap: 28px; }
 .footer-links li { break-inside: avoid; }
 @media (min-width: 768px) { .footer-grid { grid-template-columns: 1.1fr 1.7fr 1fr; } }
+
+/* ---------- Deed writers' smart calculator (inline on /services/) ---------- */
+.service-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
+.service-cards > .service-card { flex: 0 1 100%; }
+@media (min-width: 640px) { .service-cards > .service-card { flex-basis: calc((100% - var(--gap)) / 2); } }
+@media (min-width: 1100px) { .service-cards > .service-card { flex-basis: calc((100% - 3 * var(--gap)) / 4); } }
+.service-card button.btn { width: 100%; background: var(--accent, #006838); border-color: var(--accent, #006838); }
+
+.smart-calc { margin-top: 28px; background: #fff; border: 1px solid var(--c-border); border-top: 6px solid #E60012; border-radius: 16px; box-shadow: var(--shadow); padding: 18px; scroll-margin-top: 16px; }
+@media (min-width: 768px) { .smart-calc { padding: 28px; } }
+.smart-calc[hidden] { display: none; }
+.sc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.sc-head h2 { margin: 0; display: flex; align-items: center; gap: 10px; font-size: clamp(1.15rem, 4.5vw, 1.5rem); color: #004D2B; }
+.sc-head h2 svg { color: #E60012; flex: none; }
+
+.sc-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px; }
+@media (min-width: 760px) { .sc-tabs { grid-template-columns: repeat(4, 1fr); } }
+.sc-tabs [role="tab"] {
+	display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+	min-height: 76px; padding: 10px 8px; font: inherit; font-weight: 700; line-height: 1.35; cursor: pointer;
+	background: #f5f8f6; color: #004D2B; border: 2px solid var(--c-border); border-radius: 12px; overflow-wrap: anywhere;
+}
+.sc-tabs [role="tab"] svg { color: #006838; }
+.sc-tabs [role="tab"][aria-selected="true"] { background: #006838; border-color: #006838; color: #fff; }
+.sc-tabs [role="tab"][aria-selected="true"] svg { color: #fff; }
+
+.sc-tool[hidden] { display: none; }
+.sc-title { margin: 0 0 4px; font-size: 1.2rem; color: #004D2B; }
+.sc-hint { margin: 0 0 14px; color: var(--c-muted); font-size: .95rem; }
+.sc-card, .sc-result { background: #f5f8f6; border: 1px solid var(--c-border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.sc-result { background: #fff; border-top: 5px solid #006838; }
+.sc-result h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.sc-empty { margin: 0; color: var(--c-muted); }
+.sc-headline { font-size: clamp(1.15rem, 5vw, 1.6rem); font-weight: 700; color: #006838; margin: 0 0 10px; overflow-wrap: anywhere; }
+.sc-warn { margin: 0 0 10px; padding: 10px 12px; border-radius: 10px; background: #fdecec; border: 1px solid #e2a0a0; color: #7a1414; font-weight: 600; }
+.sc-note, .sc-disclaimer { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: #fff8e6; border: 1px solid #f1d38a; color: #5c4400; font-size: .92rem; }
+
+.sc-field { margin-bottom: 14px; min-width: 0; }
+.sc-field label { display: block; font-weight: 600; margin-bottom: 6px; }
+.sc-err { margin: 6px 0 0; color: #b42318; font-weight: 600; font-size: .92rem; }
+.sc-err[hidden] { display: none; }
+.sc-pair { display: grid; grid-template-columns: 1fr; gap: 0 14px; align-items: end; }
+@media (min-width: 720px) {
+	.sc-pair { grid-template-columns: 1fr auto 1fr; }
+	.sc-pair-simple { grid-template-columns: 1fr 1fr; }
+}
+.sc-swap { margin-bottom: 14px; min-height: 48px; }
+.sc-stdbox { border: 1px dashed var(--c-border); border-radius: 12px; padding: 10px 14px; margin: 4px 0 14px; background: #fff; }
+.sc-stdbox legend { font-weight: 700; padding-inline: 6px; }
+.sc-stdbox legend small { font-weight: 400; color: var(--c-muted); }
+.sc-modes { border: 0; padding: 0; margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.sc-modes legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
+.sc-modes label {
+	display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 8px 14px; margin: 0;
+	background: #fff; border: 2px solid var(--c-border); border-radius: 10px; font-weight: 600; cursor: pointer;
+}
+.sc-modes label:has(input:checked) { border-color: #006838; background: #eaf4ee; color: #004D2B; }
+.sc-modes input { width: 20px; height: 20px; accent-color: #006838; }
+.sc-mode-box[hidden] { display: none; }
+.sc-owner { display: grid; grid-template-columns: 1fr; gap: 0 12px; align-items: end; padding: 10px 0; border-top: 1px solid var(--c-border); }
+@media (min-width: 720px) { .sc-owner { grid-template-columns: 1.1fr 1fr 1fr auto; } }
+.sc-owner .btn { margin-bottom: 14px; min-height: 48px; }
+.sc-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 6px; }
+@media (min-width: 720px) { .sc-actions { grid-template-columns: repeat(4, 1fr); } }
+.sc-actions .btn { padding-inline: 10px; }
+.sc-actions .btn svg { flex: none; }
+
+@media print {
+	body.print-smart .service-cards, body.print-smart .page-head, body.print-smart .sc-head, body.print-smart .sc-tabs,
+	body.print-smart .sc-actions, body.print-smart .sc-card, body.print-smart .sc-hint { display: none !important; }
+	body.print-smart .smart-calc { border: 0; box-shadow: none; padding: 0; }
+	body.print-smart .sc-tool[hidden] { display: none !important; }
+	body.print-smart .sc-result { border: 1px solid #999; break-inside: avoid; }
+}
