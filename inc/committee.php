@@ -366,9 +366,8 @@ function sro_committee_card( $m, $tier ) {
 }
 
 /**
- * One-time setup: make sure the "কার্যকরী কমিটি" page exists and the main menu
- * has a clear link to it. If the old "আমাদের সম্পর্কে" menu item actually points
- * to the home page (it is set as the Homepage), it is renamed to "হোম".
+ * One-time setup: make sure the "কার্যকরী কমিটি" page exists (it is linked from
+ * the footer and the home page, not from the main menu).
  */
 function sro_committee_setup() {
 	if ( '1' === get_option( 'sro_committee_setup' ) ) {
@@ -392,50 +391,49 @@ function sro_committee_setup() {
 		return;
 	}
 
+	update_option( 'sro_committee_setup', '1', false );
+}
+add_action( 'init', 'sro_committee_setup', 99 );
+
+/**
+ * One-time clean-up of the main menu (earlier versions added a committee item
+ * and renamed the home item): remove the committee item and call the item that
+ * points to the front page "আমাদের সম্পর্কে".
+ */
+function sro_menu_cleanup() {
+	if ( '1' === get_option( 'sro_menu_fix_2' ) ) {
+		return;
+	}
 	$locations = get_nav_menu_locations();
-	if ( ! empty( $locations['primary'] ) ) {
-		$menu_id = (int) $locations['primary'];
-		$items   = wp_get_nav_menu_items( $menu_id );
-		$has     = false;
-		$front   = (int) get_option( 'page_on_front' );
-		$home_at = 0;
-		foreach ( (array) $items as $item ) {
-			if ( 'page' === $item->object && (int) $item->object_id === $page_id ) {
-				$has = true;
-			}
-			if ( 'page' === $item->object && $front && (int) $item->object_id === $front && 'হোম' !== $item->title ) {
-				$home_at = $item;
-			}
+	if ( empty( $locations['primary'] ) ) {
+		update_option( 'sro_menu_fix_2', '1', false );
+		return;
+	}
+	$menu_id      = (int) $locations['primary'];
+	$committee    = get_page_by_path( 'committee' );
+	$committee_id = $committee ? (int) $committee->ID : 0;
+	$front        = (int) get_option( 'page_on_front' );
+
+	foreach ( (array) wp_get_nav_menu_items( $menu_id ) as $item ) {
+		if ( 'page' === $item->object && $committee_id && (int) $item->object_id === $committee_id ) {
+			wp_delete_post( $item->ID, true );
+			continue;
 		}
-		if ( $home_at ) {
+		if ( 'page' === $item->object && $front && (int) $item->object_id === $front && 'হোম' === $item->title ) {
 			wp_update_nav_menu_item(
 				$menu_id,
-				$home_at->ID,
+				$item->ID,
 				array(
-					'menu-item-title'     => 'হোম',
+					'menu-item-title'     => 'আমাদের সম্পর্কে',
 					'menu-item-object'    => 'page',
-					'menu-item-object-id' => $home_at->object_id,
+					'menu-item-object-id' => $item->object_id,
 					'menu-item-type'      => 'post_type',
 					'menu-item-status'    => 'publish',
-					'menu-item-position'  => $home_at->menu_order,
-				)
-			);
-		}
-		if ( ! $has ) {
-			wp_update_nav_menu_item(
-				$menu_id,
-				0,
-				array(
-					'menu-item-title'     => 'কার্যকরী কমিটি',
-					'menu-item-object'    => 'page',
-					'menu-item-object-id' => $page_id,
-					'menu-item-type'      => 'post_type',
-					'menu-item-status'    => 'publish',
-					'menu-item-position'  => 2,
+					'menu-item-position'  => $item->menu_order,
 				)
 			);
 		}
 	}
-	update_option( 'sro_committee_setup', '1', false );
+	update_option( 'sro_menu_fix_2', '1', false );
 }
-add_action( 'init', 'sro_committee_setup', 99 );
+add_action( 'init', 'sro_menu_cleanup', 100 );
