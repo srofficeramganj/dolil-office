@@ -279,7 +279,7 @@ function sro_registration_documents() {
  * 2026-10-13). They open the official website in a new tab; nothing is stored.
  */
 function sro_gov_shortcuts() {
-	return array(
+	$all = array(
 		array(
 			'title'  => 'খতিয়ান অনুসন্ধান',
 			'icon'   => 'file-search',
@@ -306,6 +306,7 @@ function sro_gov_shortcuts() {
 		),
 		array(
 			'title'  => 'মৌজা ম্যাপ ও ভূমি রেকর্ড',
+			'enabled' => false,
 			'icon'   => 'map',
 			'url'    => 'https://map.land.gov.bd/',
 			'domain' => 'map.land.gov.bd',
@@ -314,6 +315,7 @@ function sro_gov_shortcuts() {
 		),
 		array(
 			'title'  => 'সরকারি ভূমি ফরম',
+			'enabled' => false,
 			'icon'   => 'folder-down',
 			'url'    => 'https://ldtax.gov.bd/vumiseba-form',
 			'domain' => 'ldtax.gov.bd',
@@ -322,11 +324,22 @@ function sro_gov_shortcuts() {
 		),
 		array(
 			'title'  => 'ভূমি আইন ও বিধিমালা',
+			'enabled' => false,
 			'icon'   => 'book-open',
 			'url'    => 'https://ldtax.gov.bd/ain-and-bidhi',
 			'domain' => 'ldtax.gov.bd',
 			'btn'    => 'আইন ও বিধিমালা দেখুন',
 			'note'   => 'ভূমি সংক্রান্ত আইন ও বিধিমালার তালিকা।',
 		),
+	);
+
+	// Only entries without enabled => false are shown.
+	return array_values(
+		array_filter(
+			$all,
+			function ( $g ) {
+				return ! isset( $g['enabled'] ) || $g['enabled'];
+			}
+		)
 	);
 }
