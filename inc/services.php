@@ -277,20 +277,30 @@ function sro_registration_documents() {
 /**
  * Government land service shortcuts (all verified official sites, HTTP 200 on
  * 2026-10-13). They open the official website in a new tab; nothing is stored.
+ *
+ * 'title' is the name used on the official land.gov.bd service tiles so that
+ * visitors recognise the card; 'sub' is our plain description. Entries with
+ * 'enabled' => false are kept but not shown.
  */
 function sro_gov_shortcuts() {
 	$all = array(
 		array(
-			'title'  => 'খতিয়ান অনুসন্ধান',
-			'icon'   => 'file-search',
+			'title'  => 'ভূমি রেকর্ড ও ম্যাপ',
+			'sub'    => 'খতিয়ান অনুসন্ধান',
+			'tile'   => 'record',
+			'bar'    => '#00dddd',
+			'color'  => '#8bb82f',
 			'url'    => 'https://dlrms.land.gov.bd/',
 			'domain' => 'dlrms.land.gov.bd',
 			'btn'    => 'খতিয়ান সেবায় যান',
 			'note'   => 'ভূমি তথ্য বাতায়নের "ভূমি রেকর্ড ও ম্যাপ" সেবার অফিসিয়াল প্রবেশ পথ (DLRMS)।',
 		),
 		array(
-			'title'  => 'ই-নামজারি',
-			'icon'   => 'file-pen-line',
+			'title'  => 'মিউটেশন',
+			'sub'    => 'ই-নামজারি',
+			'tile'   => 'mutation',
+			'bar'    => '#217ba6',
+			'color'  => '#3fbf9d',
 			'url'    => 'https://mutation.land.gov.bd/',
 			'domain' => 'mutation.land.gov.bd',
 			'btn'    => 'ই-নামজারি সেবায় যান',
@@ -298,42 +308,53 @@ function sro_gov_shortcuts() {
 		),
 		array(
 			'title'  => 'ভূমি উন্নয়ন কর',
-			'icon'   => 'receipt',
+			'sub'    => 'অনলাইনে ভূমি কর সেবা',
+			'tile'   => 'tax',
+			'bar'    => '#0713c3',
+			'color'  => '#f5a623',
 			'url'    => 'https://ldtax.gov.bd/',
 			'domain' => 'ldtax.gov.bd',
 			'btn'    => 'ভূমি কর সেবায় যান',
 			'note'   => 'অনলাইনে ভূমি উন্নয়ন কর সংক্রান্ত সেবা।',
 		),
 		array(
-			'title'  => 'মৌজা ম্যাপ ও ভূমি রেকর্ড',
 			'enabled' => false,
-			'icon'   => 'map',
-			'url'    => 'https://map.land.gov.bd/',
-			'domain' => 'map.land.gov.bd',
-			'btn'    => 'ম্যাপ ও রেকর্ড সেবায় যান',
-			'note'   => '"ভূমি নকশা" (জমির মানচিত্র) পোর্টাল। সব উপজেলার মানচিত্র সেখানে না-ও থাকতে পারে।',
+			'title'   => 'ভূমি নকশা',
+			'sub'     => 'মৌজা ম্যাপ',
+			'tile'    => 'record',
+			'bar'     => '#00dddd',
+			'color'   => '#8bb82f',
+			'url'     => 'https://map.land.gov.bd/',
+			'domain'  => 'map.land.gov.bd',
+			'btn'     => 'ম্যাপ ও রেকর্ড সেবায় যান',
+			'note'    => '"ভূমি নকশা" (জমির মানচিত্র) পোর্টাল। সব উপজেলার মানচিত্র সেখানে না-ও থাকতে পারে।',
 		),
 		array(
-			'title'  => 'সরকারি ভূমি ফরম',
 			'enabled' => false,
-			'icon'   => 'folder-down',
-			'url'    => 'https://ldtax.gov.bd/vumiseba-form',
-			'domain' => 'ldtax.gov.bd',
-			'btn'    => 'ফরমসমূহ দেখুন',
-			'note'   => 'লীজ, নামজারিসহ বিভিন্ন ফরম PDF আকারে ডাউনলোড করা যায়।',
+			'title'   => 'সরকারি ভূমি ফরম',
+			'sub'     => 'ফরম ডাউনলোড',
+			'tile'    => 'tax',
+			'bar'     => '#0713c3',
+			'color'   => '#f5a623',
+			'url'     => 'https://ldtax.gov.bd/vumiseba-form',
+			'domain'  => 'ldtax.gov.bd',
+			'btn'     => 'ফরমসমূহ দেখুন',
+			'note'    => 'লীজ, নামজারিসহ বিভিন্ন ফরম PDF আকারে ডাউনলোড করা যায়।',
 		),
 		array(
-			'title'  => 'ভূমি আইন ও বিধিমালা',
 			'enabled' => false,
-			'icon'   => 'book-open',
-			'url'    => 'https://ldtax.gov.bd/ain-and-bidhi',
-			'domain' => 'ldtax.gov.bd',
-			'btn'    => 'আইন ও বিধিমালা দেখুন',
-			'note'   => 'ভূমি সংক্রান্ত আইন ও বিধিমালার তালিকা।',
+			'title'   => 'ভূমি আইন ও বিধিমালা',
+			'sub'     => 'আইন ও বিধি',
+			'tile'    => 'mutation',
+			'bar'     => '#217ba6',
+			'color'   => '#3fbf9d',
+			'url'     => 'https://ldtax.gov.bd/ain-and-bidhi',
+			'domain'  => 'ldtax.gov.bd',
+			'btn'     => 'আইন ও বিধিমালা দেখুন',
+			'note'    => 'ভূমি সংক্রান্ত আইন ও বিধিমালার তালিকা।',
 		),
 	);
 
-	// Only entries without enabled => false are shown.
 	return array_values(
 		array_filter(
 			$all,
@@ -342,4 +363,22 @@ function sro_gov_shortcuts() {
 			}
 		)
 	);
+}
+
+/**
+ * Large square-framed tile icon (our own drawing, in the spirit of the official tiles).
+ */
+function sro_gov_tile_icon( $tile, $color ) {
+	$inner = '';
+	switch ( $tile ) {
+		case 'mutation': // fingerprint
+			$inner = '<g transform="translate(14 14) scale(1.5)" fill="none" stroke="' . esc_attr( $color ) . '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></g>';
+			break;
+		case 'tax': // taka sign
+			$inner = '<text x="40" y="58" text-anchor="middle" font-size="46" font-weight="700" fill="' . esc_attr( $color ) . '" font-family="Noto Sans Bengali, Nirmala UI, sans-serif">৳</text>';
+			break;
+		default: // land record: house on plots
+			$inner = '<g fill="none" stroke="' . esc_attr( $color ) . '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 66l12-14h46l-12 14z"/><path d="M30 66l6-14M46 66l7-14M22 52h50"/><path d="M26 44V30l14-11 14 11v14"/><rect x="36" y="32" width="8" height="12"/></g>';
+	}
+	return '<svg class="gov-tile-icon" viewBox="0 0 80 80" width="84" height="84" aria-hidden="true" focusable="false"><rect x="5" y="5" width="70" height="70" rx="4" fill="none" stroke="' . esc_attr( $color ) . '" stroke-width="5"/>' . $inner . '</svg>';
 }

@@ -118,15 +118,19 @@ $result = function () {
 
 			<div class="gov-grid">
 				<?php foreach ( sro_gov_shortcuts() as $g ) : ?>
-					<article class="gov-card">
-						<span class="gov-icon"><?php sro_icon( $g['icon'], 30 ); ?></span>
-						<h3><?php echo esc_html( $g['title'] ); ?></h3>
-						<p class="gov-note"><?php echo esc_html( $g['note'] ); ?></p>
-						<p class="gov-domain"><?php sro_icon( 'external-link', 14 ); ?> <span>সরকারি ওয়েবসাইট: <?php echo esc_html( $g['domain'] ); ?></span></p>
-						<a class="btn gov-btn" href="<?php echo esc_url( $g['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-							<span><?php echo esc_html( $g['btn'] ); ?></span> <?php sro_icon( 'external-link', 18 ); ?>
-							<span class="screen-reader-text">(নতুন ট্যাবে সরকারি ওয়েবসাইট খুলবে)</span>
-						</a>
+					<article class="gov-card" style="--bar:<?php echo esc_attr( $g['bar'] ); ?>">
+						<div class="gov-bar" aria-hidden="true"></div>
+						<div class="gov-body">
+							<span class="gov-tile"><?php echo sro_gov_tile_icon( $g['tile'], $g['color'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<h3><?php echo esc_html( $g['title'] ); ?></h3>
+							<p class="gov-sub"><?php echo esc_html( $g['sub'] ); ?></p>
+							<p class="gov-note"><?php echo esc_html( $g['note'] ); ?></p>
+							<p class="gov-domain"><?php sro_icon( 'external-link', 14 ); ?> <span>সরকারি ওয়েবসাইট: <?php echo esc_html( $g['domain'] ); ?></span></p>
+							<a class="btn gov-btn" href="<?php echo esc_url( $g['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+								<span><?php echo esc_html( $g['btn'] ); ?></span> <?php sro_icon( 'external-link', 18 ); ?>
+								<span class="screen-reader-text">(নতুন ট্যাবে সরকারি ওয়েবসাইট খুলবে)</span>
+							</a>
+						</div>
 					</article>
 				<?php endforeach; ?>
 			</div>
